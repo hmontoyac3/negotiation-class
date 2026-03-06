@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session 1 — Your Role</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0a0a12; --surface: #13131f; --border: #2a2a3e; --text: #e8e8f0; --muted: #6b6b8a; --accent: #ff4757; --blue: #3d84ff; --green: #2ed573; --gold: #ffd32a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; min-height: 100vh; padding: 0 0 60px 0; }
+  .confidential-bar { background: var(--accent); color: #fff; text-align: center; padding: 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; font-weight: 700; text-transform: uppercase; position: sticky; top: 0; z-index: 100; }
+  .hero { background: var(--surface); border-bottom: 1px solid var(--border); padding: 32px 24px 24px; text-align: center; }
+  .role-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+  .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 2px; line-height: 0.95; }
+  .hero h1 span { color: var(--gold); }
+  .hero-sub { font-size: 15px; color: var(--muted); margin-top: 12px; font-weight: 300; line-height: 1.5; }
+  .content { padding: 24px 20px; max-width: 600px; margin: 0 auto; }
+  .section { background: var(--surface); border: 1px solid var(--border); padding: 20px; margin-bottom: 14px; }
+  .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; display: block; }
+  .section ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .section ul li { font-size: 15px; line-height: 1.5; padding-left: 18px; position: relative; }
+  .section ul li::before { content: '→'; position: absolute; left: 0; color: var(--gold); }
+  .numbers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .number-box { background: var(--bg); border: 1px solid var(--border); padding: 16px; text-align: center; }
+  .number-box .num { font-family: 'Bebas Neue', sans-serif; font-size: 36px; display: block; line-height: 1; }
+  .number-box .lbl { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 4px; display: block; }
+  .number-box .note { font-size: 12px; color: var(--muted); margin-top: 6px; font-style: italic; }
+  .key-fact { background: rgba(255,211,42,0.06); border: 1px solid rgba(255,211,42,0.35); padding: 20px; margin-bottom: 14px; }
+  .key-fact-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; display: block; }
+  .key-fact p { font-size: 15px; line-height: 1.6; }
+  .key-fact strong { color: var(--gold); }
+  .danger-section { background: rgba(255,71,87,0.07); border: 1px solid rgba(255,71,87,0.4); padding: 20px; margin-bottom: 14px; }
+  .danger-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; display: block; }
+  .danger-section ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .danger-section ul li { font-size: 15px; line-height: 1.5; padding-left: 18px; position: relative; }
+  .danger-section ul li::before { content: '✕'; position: absolute; left: 0; color: var(--accent); }
+  .ai-section { background: rgba(61,132,255,0.06); border: 1px solid rgba(61,132,255,0.35); padding: 20px; margin-bottom: 14px; }
+  .ai-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; display: block; }
+  .ai-intro { font-size: 13px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+  .ai-prompt { background: var(--bg); border: 1px solid var(--border); padding: 14px; font-size: 13px; line-height: 1.7; color: var(--text); font-family: monospace; white-space: pre-wrap; border-left: 3px solid var(--blue); }
+  .copy-btn { margin-top: 10px; background: var(--blue); color: #fff; border: none; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 2px; padding: 10px 20px; cursor: pointer; width: 100%; }
+  .copy-btn:hover { background: #5a9fff; }
+</style>
+</head>
+<body>
+
+<div class="confidential-bar">⚠ Confidential — Do not share this with your partner</div>
+
+<div class="hero">
+  <div class="role-tag">Session 1 · The Offer · Your Role</div>
+  <h1>THE<br><span>CANDIDATE</span></h1>
+  <div class="hero-sub">You have a job offer from Nexus.<br>Now you need to negotiate the salary.</div>
+</div>
+
+<div class="content">
+
+  <div class="section">
+    <span class="section-label">Your Situation</span>
+    <ul>
+      <li>You've just received a written job offer from <strong>Nexus</strong>, a fast-growing B2B SaaS startup in Milan</li>
+      <li>The role is a Business Analyst position — a strong fit for your profile</li>
+      <li>You're graduating in June and this would be your first full-time job</li>
+      <li>HR told you the offer is "around €2,200/month" but said there's flexibility</li>
+      <li>You have one other option: a consulting firm called you back, but it's not a firm offer — it's uncertain, at least 6 weeks away, and you're not sure how much it would pay</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <span class="section-label">Your Numbers — Keep These Secret</span>
+    <div class="numbers-grid">
+      <div class="number-box">
+        <span class="num" style="color:var(--gold)">€2,800</span>
+        <span class="lbl">Your Target</span>
+        <span class="note">What you're hoping to get</span>
+      </div>
+      <div class="number-box">
+        <span class="num" style="color:var(--green)">€2,500</span>
+        <span class="lbl">Your Minimum</span>
+        <span class="note">Below this, you wait for the consulting callback</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="key-fact">
+    <span class="key-fact-label">What You Also Care About (beyond salary)</span>
+    <p>You'd like to <strong>work from home 2 days per week</strong> — your commute is long. You'd also prefer to start in <strong>October</strong> rather than September, because you have a summer trip planned. These aren't dealbreakers, but they matter. The right combination of salary + flexibility might be worth more to you than a higher number alone.</p>
+  </div>
+
+  <div class="danger-section">
+    <span class="danger-label">⚠ Do Not Reveal</span>
+    <ul>
+      <li>That your minimum is €2,500 — if they know it, they'll stop there</li>
+      <li>That the consulting offer is uncertain and 6 weeks away — this weakens your position</li>
+      <li>That you really want this job — it gives them less reason to move</li>
+    </ul>
+  </div>
+
+  <div class="ai-section">
+    <span class="ai-label">Use AI to Prepare — 7 Minutes</span>
+    <div class="ai-intro">Copy this prompt into ChatGPT or Claude. Read the response. Think about what it misses.</div>
+    <div class="ai-prompt" id="prompt-text">I have a job offer from a startup called Nexus in Milan for a Business Analyst role. They offered around €2,200/month but said there's flexibility. I'm a recent graduate. I have another potential option at a consulting firm but it's not confirmed yet.
+
+I want to negotiate a higher salary. Help me prepare:
+- What should I say as my opening ask, and how do I justify it?
+- How do I respond if they push back hard?
+- What do I do if they say the budget is fixed?
+- What should I avoid saying?</div>
+    <button class="copy-btn" onclick="copyPrompt()">COPY PROMPT →</button>
+  </div>
+
+</div>
+
+<script>
+  function copyPrompt() {
+    navigator.clipboard.writeText(document.getElementById('prompt-text').textContent).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'COPIED ✓';
+      setTimeout(() => btn.textContent = 'COPY PROMPT →', 2000);
+    });
+  }
+</script>
+</body>
+</html>

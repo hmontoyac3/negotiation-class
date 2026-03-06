@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Results Dashboard | Negotiation</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+
+<!-- Same Firebase project as the submit pages -->
+<script src="firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<style>
+  :root {
+    --bg: #050a14; --surface: #0d1526; --border: #1a2840; --text: #e0eaff;
+    --muted: #4a5f80; --accent: #ff4757; --blue: #3d9bff; --green: #00d68f;
+    --gold: #ffd700; --purple: #a55eea; --red: #ff4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; min-height: 100vh; }
+
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; }
+  header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 3px; }
+  header h1 span { color: var(--gold); }
+  .header-sub { font-size: 12px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+  .header-right { display: flex; align-items: center; gap: 20px; }
+  .tab-btns { display: flex; gap: 8px; }
+  .tab-btn { background: var(--border); color: var(--text); border: none; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; letter-spacing: 1px; padding: 8px 20px; cursor: pointer; transition: all 0.2s; }
+  .tab-btn.active, .tab-btn:hover { background: var(--gold); color: var(--bg); }
+
+  /* Live indicator */
+  .live-badge {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+  }
+  .live-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--border);
+    transition: background 0.3s;
+  }
+  .live-dot.on { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+  .live-dot.off { background: var(--red); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  .tab { display: none; padding: 32px 40px; }
+  .tab.active { display: block; }
+
+  /* Stats row */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; text-align: center; }
+  .stat-card .n { font-family: 'Bebas Neue', sans-serif; font-size: 48px; display: block; line-height: 1; }
+  .stat-card .l { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; display: block; }
+
+  /* Progress bar */
+  .progress-bar {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px;
+  }
+  .progress-label { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .progress-track { flex: 1; height: 8px; background: var(--border); border-radius: 0; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--gold); transition: width 0.5s; }
+  .progress-count { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; color: var(--gold); white-space: nowrap; }
+
+  /* Reset button */
+  .reset-btn {
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 1px;
+    padding: 6px 14px; cursor: pointer; transition: all 0.2s;
+  }
+  .reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+  /* Chart */
+  .chart-section { background: var(--surface); border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; }
+  .chart-title { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; }
+  .bar-chart { display: flex; align-items: flex-end; gap: 4px; height: 200px; padding: 0 0 32px 0; position: relative; border-bottom: 1px solid var(--border); overflow-x: auto; min-height: 240px; }
+  .bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 36px; }
+  .bar { width: 28px; background: var(--blue); transition: all 0.4s; position: relative; cursor: default; }
+  .bar.above-avg { background: var(--green); }
+  .bar.below-min { background: var(--red); }
+  .bar.no-deal { background: var(--muted); }
+  .bar-label { font-size: 10px; color: var(--muted); text-align: center; }
+  .bar-value { font-size: 11px; color: var(--text); text-align: center; font-family: 'Barlow Condensed', sans-serif; }
+  .chart-legend { display: flex; gap: 24px; margin-top: 12px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .legend-dot { width: 12px; height: 12px; }
+
+  .ref-lines { font-size: 12px; color: var(--muted); margin-bottom: 16px; display: flex; gap: 20px; flex-wrap: wrap; }
+  .ref-line { padding: 4px 10px; border: 1px solid; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 1px; }
+  .ref-line.min { border-color: var(--green); color: var(--green); }
+  .ref-line.avg { border-color: var(--gold); color: var(--gold); }
+  .ref-line.ceil { border-color: var(--purple); color: var(--purple); }
+
+  /* Session 2 */
+  .s1-header { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; color: var(--gold); margin-bottom: 8px; }
+  .s1-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+
+  .s2-outcomes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 32px; }
+  .outcome-card { background: var(--surface); border: 1px solid var(--border); padding: 28px; text-align: center; }
+  .outcome-card .big { font-family: 'Bebas Neue', sans-serif; font-size: 96px; line-height: 1; display: block; }
+  .outcome-card .lbl { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; display: block; }
+  .outcome-card .desc { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+  .outcome-card.winwin .big { color: var(--green); }
+  .outcome-card.winwin { border-color: rgba(0,214,143,0.3); }
+  .outcome-card.battle .big { color: var(--accent); }
+  .outcome-card.nodeal .big { color: var(--muted); }
+
+  .pct-bar-container { background: var(--surface); border: 1px solid var(--border); padding: 24px; }
+  .pct-bar-title { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .pct-bar-track { height: 40px; background: var(--bg); display: flex; overflow: hidden; border: 1px solid var(--border); }
+  .pct-segment { height: 100%; transition: width 0.5s; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1px; overflow: hidden; }
+  .pct-segment.winwin { background: var(--green); color: var(--bg); }
+  .pct-segment.battle { background: var(--accent); color: #fff; }
+  .pct-segment.nodeal { background: var(--muted); color: var(--bg); }
+  .pct-labels { display: flex; gap: 20px; margin-top: 10px; }
+  .pct-lbl { font-size: 12px; color: var(--muted); }
+  .pct-lbl strong { display: block; font-size: 15px; font-family: 'Barlow Condensed', sans-serif; }
+  .pct-lbl strong.g { color: var(--green); }
+  .pct-lbl strong.r { color: var(--accent); }
+  .pct-lbl strong.m { color: var(--muted); }
+
+  .missing-pairs {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 16px 20px; margin-top: 20px; font-size: 13px; color: var(--muted);
+  }
+  .missing-pairs strong { color: var(--text); display: block; margin-bottom: 6px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; }
+  .pair-pill {
+    display: inline-block; background: var(--border); border-radius: 2px;
+    padding: 2px 8px; font-size: 12px; margin: 3px 2px; font-family: 'Barlow Condensed', sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>NEGOTIATION — <span>LIVE RESULTS</span></h1>
+    <div class="header-sub">Updates automatically as pairs submit</div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge">
+      <div class="live-dot" id="live-dot"></div>
+      <span id="live-txt">connecting</span>
+    </div>
+    <div class="tab-btns">
+      <button class="tab-btn active" onclick="showTab('s1', this)">Session 1 — Salaries</button>
+      <button class="tab-btn" onclick="showTab('s2', this)">Session 2 — Rights</button>
+    </div>
+  </div>
+</header>
+
+<!-- SESSION 1 TAB -->
+<div class="tab active" id="tab-s1">
+  <div class="s1-header">THE OFFER — SALARY RESULTS</div>
+  <div class="s1-sub">Pairs submit from their phones. Results update here in real time.</div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="n" id="s1-count" style="color:var(--gold)">0</span>
+      <span class="l">Pairs submitted</span>
+    </div>
+    <div class="stat-card">
+      <span class="n" id="s1-avg" style="color:var(--blue)">—</span>
+      <span class="l">Average salary (€)</span>
+    </div>
+    <div class="stat-card">
+      <span class="n" id="s1-high" style="color:var(--green)">—</span>
+      <span class="l">Highest deal (€)</span>
+    </div>
+    <div class="stat-card">
+      <span class="n" id="s1-nodeal" style="color:var(--muted)">0</span>
+      <span class="l">No deals</span>
+    </div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-label">Pairs submitted</div>
+    <div class="progress-track"><div class="progress-fill" id="s1-progress" style="width:0%"></div></div>
+    <div class="progress-count" id="s1-progress-count">0 / 60</div>
+    <button class="reset-btn" onclick="resetS1()">RESET S1 DATA</button>
+  </div>
+
+  <div class="ref-lines">
+    <div class="ref-line min">€2,500 — Candidate minimum</div>
+    <div class="ref-line avg" id="s1-avg-line">Average: —</div>
+    <div class="ref-line ceil">€2,900 — HR ceiling</div>
+  </div>
+
+  <div class="chart-section">
+    <div class="chart-title">Salary Distribution — All Pairs</div>
+    <div class="bar-chart" id="bar-chart">
+      <div style="color:var(--muted);font-size:14px;align-self:center;padding:20px;">Waiting for submissions…</div>
+    </div>
+    <div class="chart-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Above €2,700</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>€2,500–€2,700</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Below €2,500 (candidate minimum)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--muted)"></div>No deal</div>
+    </div>
+  </div>
+
+  <div class="missing-pairs" id="s1-missing" style="display:none;">
+    <strong>Pairs not yet submitted</strong>
+    <div id="s1-missing-list"></div>
+  </div>
+</div>
+
+<!-- SESSION 2 TAB -->
+<div class="tab" id="tab-s2">
+  <div class="s1-header" style="color:var(--blue)">THE RIGHTS — OUTCOME RESULTS</div>
+  <div class="s1-sub">Pairs submit from their phones. Results update here in real time.</div>
+
+  <div class="progress-bar">
+    <div class="progress-label">Pairs submitted</div>
+    <div class="progress-track"><div class="progress-fill" id="s2-progress" style="width:0%"></div></div>
+    <div class="progress-count" id="s2-progress-count">0 / 60</div>
+    <button class="reset-btn" onclick="resetS2()">RESET S2 DATA</button>
+  </div>
+
+  <div class="s2-outcomes">
+    <div class="outcome-card winwin">
+      <span class="big" id="s2-winwin">0</span>
+      <span class="lbl" style="color:var(--green)">Split the Rights</span>
+      <span class="desc">Both sides got what they needed. Audio to one, video to the other. Win-win.</span>
+    </div>
+    <div class="outcome-card battle">
+      <span class="big" id="s2-battle">0</span>
+      <span class="lbl" style="color:var(--accent)">One Side Won</span>
+      <span class="desc">Competed on price. One side paid more than needed.</span>
+    </div>
+    <div class="outcome-card nodeal">
+      <span class="big" id="s2-nodeal">0</span>
+      <span class="lbl" style="color:var(--muted)">No Deal</span>
+      <span class="desc">Couldn't agree. Both walked away.</span>
+    </div>
+  </div>
+
+  <div class="pct-bar-container">
+    <div class="pct-bar-title">Outcome Breakdown — % of Pairs</div>
+    <div class="pct-bar-track">
+      <div class="pct-segment winwin" id="pct-winwin" style="width:0%"></div>
+      <div class="pct-segment battle" id="pct-battle" style="width:0%"></div>
+      <div class="pct-segment nodeal" id="pct-nodeal" style="width:0%"></div>
+    </div>
+    <div class="pct-labels">
+      <div class="pct-lbl"><strong class="g" id="pct-winwin-lbl">0%</strong>Found win-win</div>
+      <div class="pct-lbl"><strong class="r" id="pct-battle-lbl">0%</strong>Competed to win</div>
+      <div class="pct-lbl"><strong class="m" id="pct-nodeal-lbl">0%</strong>No deal</div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;background:rgba(0,214,143,0.06);border:1px solid rgba(0,214,143,0.25);padding:20px 24px;">
+    <div style="font-family:'Barlow Condensed';font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--green);margin-bottom:10px;">Historical Benchmark</div>
+    <div style="font-size:15px;line-height:1.7;color:var(--text);">
+      In classic integrative negotiation research, <strong style="color:var(--green)">30–40% of pairs discover the win-win</strong> in scenarios like this one — even with experienced negotiators. The rest assume conflict where none exists. Your class's number is the data point for today's debrief.
+    </div>
+  </div>
+
+  <div class="missing-pairs" id="s2-missing" style="display:none;">
+    <strong>Pairs not yet submitted</strong>
+    <div id="s2-missing-list"></div>
+  </div>
+</div>
+
+<script>
+  // ─── FIREBASE CONFIG ─────────────────────────────────────────────────────────
+  // Same config as the submit pages
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Config is injected at deploy time via GitHub Actions secrets.
+  firebase.initializeApp(window.firebaseConfig);
+  const db = firebase.database();
+  const TOTAL_PAIRS = 60;
+
+  // ── Connection status ──
+  db.ref('.info/connected').on('value', snap => {
+    const dot = document.getElementById('live-dot');
+    const txt = document.getElementById('live-txt');
+    if (snap.val()) {
+      dot.className = 'live-dot on'; txt.textContent = 'live';
+    } else {
+      dot.className = 'live-dot off'; txt.textContent = 'offline';
+    }
+  });
+
+  // ── Tab switching ──
+  function showTab(name, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── SESSION 1 — real-time listener ──
+  db.ref('s1').on('value', snap => {
+    const data = snap.val() || {};
+    const salaries = [];
+    let noDealCount = 0;
+    const submittedPairs = new Set();
+
+    Object.entries(data).forEach(([pairNum, entry]) => {
+      submittedPairs.add(parseInt(pairNum));
+      if (entry.outcome === 'nodeal') noDealCount++;
+      else if (entry.salary) salaries.push(entry.salary);
+    });
+
+    const count = salaries.length;
+    const total = submittedPairs.size;
+    const avg = count > 0 ? Math.round(salaries.reduce((a,b) => a+b, 0) / count) : null;
+    const high = count > 0 ? Math.max(...salaries) : null;
+
+    document.getElementById('s1-count').textContent = total;
+    document.getElementById('s1-avg').textContent = avg ? '€' + avg.toLocaleString() : '—';
+    document.getElementById('s1-high').textContent = high ? '€' + high.toLocaleString() : '—';
+    document.getElementById('s1-nodeal').textContent = noDealCount;
+    document.getElementById('s1-avg-line').textContent = avg ? 'Average: €' + avg.toLocaleString() : 'Average: —';
+
+    const pct = Math.round(total / TOTAL_PAIRS * 100);
+    document.getElementById('s1-progress').style.width = pct + '%';
+    document.getElementById('s1-progress-count').textContent = total + ' / ' + TOTAL_PAIRS;
+
+    renderChart(salaries, noDealCount);
+    renderMissing('s1', submittedPairs);
+  });
+
+  function renderChart(salaries, noDealCount) {
+    const chart = document.getElementById('bar-chart');
+    if (salaries.length === 0 && noDealCount === 0) {
+      chart.innerHTML = '<div style="color:var(--muted);font-size:14px;align-self:center;padding:20px;">Waiting for submissions…</div>';
+      return;
+    }
+    const minVal = 2000, maxVal = 3200, range = maxVal - minVal;
+    let html = '';
+    salaries.slice().sort((a,b) => a-b).forEach((v, i) => {
+      const pct = Math.max(5, Math.min(100, ((v - minVal) / range) * 100));
+      let cls = 'bar';
+      if (v >= 2700) cls += ' above-avg';
+      else if (v < 2500) cls += ' below-min';
+      html += `<div class="bar-wrap">
+        <div class="bar-value">${(v/1000).toFixed(1)}k</div>
+        <div class="${cls}" style="height:${pct}%"></div>
+        <div class="bar-label">#${i+1}</div>
+      </div>`;
+    });
+    for (let i = 0; i < noDealCount; i++) {
+      html += `<div class="bar-wrap">
+        <div class="bar-value" style="color:var(--muted)">✕</div>
+        <div class="bar no-deal" style="height:20%"></div>
+        <div class="bar-label">nd</div>
+      </div>`;
+    }
+    chart.innerHTML = html;
+  }
+
+  // ── SESSION 2 — real-time listener ──
+  db.ref('s2').on('value', snap => {
+    const data = snap.val() || {};
+    const counts = { split: 0, one: 0, nodeal: 0 };
+    const submittedPairs = new Set();
+
+    Object.entries(data).forEach(([pairNum, entry]) => {
+      submittedPairs.add(parseInt(pairNum));
+      if (counts[entry.outcome] !== undefined) counts[entry.outcome]++;
+    });
+
+    const total = submittedPairs.size;
+    document.getElementById('s2-winwin').textContent = counts.split;
+    document.getElementById('s2-battle').textContent = counts.one;
+    document.getElementById('s2-nodeal').textContent = counts.nodeal;
+
+    const pct = Math.round(total / TOTAL_PAIRS * 100);
+    document.getElementById('s2-progress').style.width = pct + '%';
+    document.getElementById('s2-progress-count').textContent = total + ' / ' + TOTAL_PAIRS;
+
+    updateS2Pct(counts, total);
+    renderMissing('s2', submittedPairs);
+  });
+
+  function updateS2Pct(counts, total) {
+    const keys = ['winwin', 'battle', 'nodeal'];
+    const vals = { winwin: counts.split, battle: counts.one, nodeal: counts.nodeal };
+    if (total === 0) {
+      keys.forEach(k => {
+        document.getElementById('pct-' + k).style.width = '0%';
+        document.getElementById('pct-' + k).textContent = '';
+        document.getElementById('pct-' + k + '-lbl').textContent = '0%';
+      });
+      return;
+    }
+    keys.forEach(k => {
+      const p = Math.round(vals[k] / total * 100);
+      document.getElementById('pct-' + k).style.width = p + '%';
+      document.getElementById('pct-' + k).textContent = p > 8 ? p + '%' : '';
+      document.getElementById('pct-' + k + '-lbl').textContent = p + '%';
+    });
+  }
+
+  // ── Missing pairs ──
+  function renderMissing(session, submittedPairs) {
+    const missing = [];
+    for (let i = 1; i <= TOTAL_PAIRS; i++) {
+      if (!submittedPairs.has(i)) missing.push(i);
+    }
+    const box = document.getElementById(session + '-missing');
+    const list = document.getElementById(session + '-missing-list');
+    if (missing.length === 0 || submittedPairs.size === 0) {
+      box.style.display = 'none';
+      return;
+    }
+    box.style.display = 'block';
+    list.innerHTML = missing.map(n => `<span class="pair-pill">${n}</span>`).join('');
+  }
+
+  // ── Reset buttons ──
+  function resetS1() {
+    if (confirm('Delete ALL Session 1 data from Firebase? This cannot be undone.')) {
+      db.ref('s1').remove();
+    }
+  }
+  function resetS2() {
+    if (confirm('Delete ALL Session 2 data from Firebase? This cannot be undone.')) {
+      db.ref('s2').remove();
+    }
+  }
+</script>
+</body>
+</html>

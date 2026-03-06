@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Professor Guide — Remote Negotiation Module</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a12; --surface: #13131f; --border: #2a2a3e; --text: #e8e8f0;
+    --muted: #6b6b8a; --accent: #ff4757; --blue: #3d84ff; --green: #2ed573;
+    --gold: #ffd32a; --purple: #a55eea; --orange: #ff6b35; --teal: #1abc9c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; }
+
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 24px 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 3px; }
+  header h1 span { color: var(--accent); }
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; }
+  .nav a { background: var(--border); color: var(--text); text-decoration: none; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 1px; padding: 6px 14px; transition: all 0.2s; }
+  .nav a:hover { background: var(--accent); color: #fff; }
+
+  .content { max-width: 900px; margin: 0 auto; padding: 40px 40px 80px; }
+
+  .module-title { font-family: 'Bebas Neue', sans-serif; font-size: 64px; letter-spacing: 2px; line-height: 0.9; margin-bottom: 8px; }
+  .module-title span { color: var(--accent); }
+  .module-sub { font-size: 16px; color: var(--muted); margin-bottom: 40px; line-height: 1.6; }
+
+  .overview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px; }
+  .overview-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; }
+  .ov-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: block; }
+  .ov-val { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--gold); display: block; line-height: 1; }
+  .ov-desc { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+
+  .section-label { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; color: var(--text); margin: 48px 0 20px; padding-top: 48px; border-top: 1px solid var(--border); }
+  .section-label span { color: var(--gold); }
+  .section-label.blue span { color: var(--blue); }
+  .section-label.green span { color: var(--green); }
+  .section-label.purple span { color: var(--purple); }
+
+  .timeline { display: flex; flex-direction: column; gap: 0; margin-bottom: 32px; }
+  .tl-item { display: grid; grid-template-columns: 80px 1fr; gap: 20px; padding: 0; }
+  .tl-time { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--muted); padding-top: 20px; text-align: right; flex-shrink: 0; }
+  .tl-body { border-left: 2px solid var(--border); padding: 20px 0 20px 24px; position: relative; }
+  .tl-body::before { content: ''; position: absolute; left: -7px; top: 26px; width: 12px; height: 12px; background: var(--border); border-radius: 50%; }
+  .tl-item.active .tl-body { border-left-color: var(--gold); }
+  .tl-item.active .tl-body::before { background: var(--gold); }
+  .tl-item.watch .tl-body { border-left-color: var(--accent); }
+  .tl-item.watch .tl-body::before { background: var(--accent); }
+  .tl-item.remote .tl-body { border-left-color: var(--blue); }
+  .tl-item.remote .tl-body::before { background: var(--blue); }
+  .tl-phase { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .tl-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .tl-body p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .tl-body p strong { color: var(--text); }
+  .tl-note { margin-top: 10px; background: rgba(255,71,87,0.07); border-left: 3px solid var(--accent); padding: 10px 14px; font-size: 13px; color: var(--text); line-height: 1.5; }
+  .tl-tip { margin-top: 10px; background: rgba(61,132,255,0.07); border-left: 3px solid var(--blue); padding: 10px 14px; font-size: 13px; color: var(--blue); line-height: 1.5; }
+  .tl-zoom { margin-top: 10px; background: rgba(26,188,156,0.07); border-left: 3px solid var(--teal); padding: 10px 14px; font-size: 13px; color: var(--teal); line-height: 1.5; }
+
+  .spoiler-box { background: var(--surface); border: 1px solid var(--border); margin-bottom: 20px; }
+  .spoiler-header { padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; user-select: none; }
+  .spoiler-header:hover { background: var(--border); }
+  .spoiler-title { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .spoiler-arrow { font-size: 12px; color: var(--muted); transition: transform 0.2s; }
+  .spoiler-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.4s, padding 0.2s; }
+  .spoiler-box.open .spoiler-body { max-height: 800px; padding: 0 20px 20px; }
+  .spoiler-box.open .spoiler-arrow { transform: rotate(180deg); }
+  .spoiler-body p { font-size: 14px; line-height: 1.7; color: var(--muted); margin-bottom: 10px; }
+  .spoiler-body p strong { color: var(--text); }
+  .spoiler-body ul { list-style: none; display: flex; flex-direction: column; gap: 8px; padding-left: 0; }
+  .spoiler-body ul li { font-size: 14px; line-height: 1.5; padding-left: 16px; position: relative; color: var(--muted); }
+  .spoiler-body ul li::before { content: '→'; position: absolute; left: 0; color: var(--blue); }
+  .spoiler-body ul li strong { color: var(--text); }
+  .spoiler-body .zopa-block { background: rgba(46,213,115,0.08); border: 1px solid rgba(46,213,115,0.3); padding: 16px; margin-top: 12px; font-size: 14px; line-height: 1.7; }
+  .spoiler-body .zopa-block strong { color: var(--green); }
+
+  .red-box { background: rgba(255,71,87,0.07); border: 1px solid rgba(255,71,87,0.3); padding: 18px 22px; margin-bottom: 20px; }
+  .red-box h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  .red-box p { font-size: 14px; line-height: 1.6; color: var(--text); }
+  .red-box ul { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .red-box ul li { font-size: 14px; line-height: 1.5; padding-left: 16px; position: relative; color: var(--text); }
+  .red-box ul li::before { content: '✕'; position: absolute; left: 0; color: var(--accent); }
+
+  .green-box { background: rgba(46,213,115,0.06); border: 1px solid rgba(46,213,115,0.25); padding: 18px 22px; margin-bottom: 20px; }
+  .green-box h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--green); margin-bottom: 10px; }
+  .green-box p { font-size: 14px; line-height: 1.6; color: var(--text); }
+  .green-box ul { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .green-box ul li { font-size: 14px; line-height: 1.5; padding-left: 16px; position: relative; color: var(--text); }
+  .green-box ul li::before { content: '✓'; position: absolute; left: 0; color: var(--green); }
+
+  .blue-box { background: rgba(61,132,255,0.06); border: 1px solid rgba(61,132,255,0.3); padding: 18px 22px; margin-bottom: 20px; }
+  .blue-box h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; }
+  .blue-box p { font-size: 14px; line-height: 1.6; color: var(--text); }
+
+  .gold-box { background: rgba(255,211,42,0.06); border: 1px solid rgba(255,211,42,0.3); padding: 18px 22px; margin-bottom: 20px; }
+  .gold-box h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+  .gold-box p { font-size: 14px; line-height: 1.6; color: var(--text); }
+
+  .files-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+  .file-card { background: var(--surface); border: 1px solid var(--border); padding: 16px; }
+  .file-name { font-family: monospace; font-size: 13px; color: var(--gold); margin-bottom: 6px; }
+  .file-desc { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  .file-open { display: inline-block; margin-top: 8px; background: var(--border); color: var(--text); text-decoration: none; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 1px; padding: 4px 12px; transition: all 0.2s; }
+  .file-open:hover { background: var(--gold); color: var(--bg); }
+
+  .grading-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+  .grade-card { background: var(--surface); border: 1px solid var(--border); padding: 18px; }
+  .grade-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; }
+  .grade-score { font-family: 'Bebas Neue', sans-serif; font-size: 42px; line-height: 1; margin-bottom: 8px; }
+  .grade-score.pass { color: var(--green); }
+  .grade-score.good { color: var(--gold); }
+  .grade-score.great { color: var(--accent); }
+  .grade-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .grade-card ul li { font-size: 13px; line-height: 1.4; padding-left: 14px; position: relative; color: var(--muted); }
+  .grade-card ul li::before { content: '·'; position: absolute; left: 0; }
+  .grade-card ul li strong { color: var(--text); }
+
+  .checklist { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+  .check-item { display: flex; align-items: flex-start; gap: 14px; background: var(--surface); border: 1px solid var(--border); padding: 16px; }
+  .check-num { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--muted); line-height: 1; flex-shrink: 0; width: 28px; }
+  .check-body h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .check-body p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .check-body p strong { color: var(--text); }
+
+  table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  th { background: var(--surface); border: 1px solid var(--border); padding: 12px 16px; text-align: left; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  td { border: 1px solid var(--border); padding: 12px 16px; font-size: 14px; color: var(--text); vertical-align: top; line-height: 1.5; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .tag { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 2px; padding: 3px 8px; text-transform: uppercase; }
+  .tag.dist { background: rgba(255,211,42,0.15); color: var(--gold); }
+  .tag.integ { background: rgba(61,132,255,0.15); color: var(--blue); }
+  .tag.synth { background: rgba(165,94,234,0.15); color: var(--purple); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>PROFESSOR GUIDE — <span>REMOTE NEGOTIATION</span></h1>
+  <div class="nav">
+    <a href="session1_board.html" target="_blank">→ Session 1 Board</a>
+    <a href="session2_board.html" target="_blank">→ Session 2 Board</a>
+    <a href="session3_board.html" target="_blank">→ Session 3 Board</a>
+  </div>
+</header>
+
+<div class="content">
+
+  <div class="module-title">REMOTE<br><span>NEGOTIATION</span></div>
+  <div class="module-sub">Three online sessions. Students connect, receive the task, split into pairs or groups of 4, negotiate live on video, and submit before disconnecting. You review submissions asynchronously. No lecture. No slides. Just doing.</div>
+
+  <div class="overview-grid">
+    <div class="overview-card">
+      <span class="ov-label">Format</span>
+      <span class="ov-val">3×</span>
+      <span class="ov-desc">One exercise per session. Connect → task → negotiate → submit → done.</span>
+    </div>
+    <div class="overview-card">
+      <span class="ov-label">Groups</span>
+      <span class="ov-val">2+2+4</span>
+      <span class="ov-desc">Pairs for Ex1 and Ex2. Groups of 4 for Ex3.</span>
+    </div>
+    <div class="overview-card">
+      <span class="ov-label">What you grade</span>
+      <span class="ov-val">3</span>
+      <span class="ov-desc">Video + AI chat log + written reflection. One submission per group.</span>
+    </div>
+  </div>
+
+  <!-- BEFORE YOU START -->
+  <div class="section-label">BEFORE <span>YOU START</span></div>
+
+  <div class="checklist">
+    <div class="check-item">
+      <div class="check-num">1</div>
+      <div class="check-body">
+        <h4>Push everything to GitHub Pages</h4>
+        <p>All 8 files in <code style="color:var(--gold)">negotiation/remote/</code> need to be live on GitHub Pages. The session boards use <strong>COPY LINK</strong> buttons that paste the full GitHub Pages URL into clipboard — you need to update those URLs inside each session board before publishing. Search for <code style="color:var(--gold)">[YOUR-GITHUB-PAGES-URL]</code> in the three session board files and replace with your actual base URL.</p>
+      </div>
+    </div>
+    <div class="check-item">
+      <div class="check-num">2</div>
+      <div class="check-body">
+        <h4>Assign pairs and groups before Session 1</h4>
+        <p>Students need to know their partner (Ex1, Ex2) and their group of 4 (Ex3) before they connect. Send an assignment list via Blackboard or announce at the start of each session via Zoom chat. <strong>For Ex1 and Ex2:</strong> assign one person per pair to each role (A/B) so they know which link to open. <strong>For Ex3:</strong> send the group brief link to all 4 — it's the same page for everyone.</p>
+      </div>
+    </div>
+    <div class="check-item">
+      <div class="check-num">3</div>
+      <div class="check-body">
+        <h4>Set up your submission platform</h4>
+        <p>Each session board has a <strong>[INSERT SUBMISSION LINK]</strong> placeholder in the Submit screen. Replace this with your actual submission link (Blackboard assignment, Google Form, or similar) before each session. Students submit one package per group: video + AI log + written reflection.</p>
+      </div>
+    </div>
+    <div class="check-item">
+      <div class="check-num">4</div>
+      <div class="check-body">
+        <h4>Prepare Zoom breakout rooms</h4>
+        <p>For Ex1 and Ex2: one breakout room per pair. For Ex3: one breakout room per group of 4. Pre-assign rooms if your Zoom account supports it, or use manual assignment. <strong>Keep yourself in the main room</strong> — students can return to main room to ask questions, or you can hop between rooms to observe. Students record their own call (Zoom local recording or screenshot screen share).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILES -->
+  <div class="section-label">FILES & <span>LINKS</span></div>
+
+  <div class="files-grid">
+    <div class="file-card">
+      <div class="file-name">session1_board.html</div>
+      <div class="file-desc">Exercise 1 "The Flat" — you run this while screen-sharing. Paste links in Zoom chat using the COPY LINK buttons.</div>
+      <a class="file-open" href="session1_board.html" target="_blank">Open →</a>
+    </div>
+    <div class="file-card">
+      <div class="file-name">session2_board.html</div>
+      <div class="file-desc">Exercise 2 "The Project" — same structure. Has a Reveal screen for after submissions are in.</div>
+      <a class="file-open" href="session2_board.html" target="_blank">Open →</a>
+    </div>
+    <div class="file-card">
+      <div class="file-name">session3_board.html</div>
+      <div class="file-desc">Exercise 3 "The Co-Founders" — groups of 4, analysis + video. Ends with the full module wrap-up.</div>
+      <a class="file-open" href="session3_board.html" target="_blank">Open →</a>
+    </div>
+    <div class="file-card">
+      <div class="file-name">roles/ex1_subarrendador.html</div>
+      <div class="file-desc">Role card: The Sublessor. Send this link to one person per pair in Ex1.</div>
+      <a class="file-open" href="roles/ex1_subarrendador.html" target="_blank">Open →</a>
+    </div>
+    <div class="file-card">
+      <div class="file-name">roles/ex1_inquilino.html</div>
+      <div class="file-desc">Role card: The Tenant. Send this link to the other person per pair in Ex1.</div>
+      <a class="file-open" href="roles/ex1_inquilino.html" target="_blank">Open →</a>
+    </div>
+    <div class="file-card">
+      <div class="file-name">roles/ex2_startup.html</div>
+      <div class="file-desc">Role card: Kura startup. Send this link to one person per pair in Ex2.</div>
+      <a class="file-open" href="roles/ex2_startup.html" target="_blank">Open →</a>
+    </div>
+    <div class="file-card">
+      <div class="file-name">roles/ex2_freelancer.html</div>
+      <div class="file-desc">Role card: The Freelancer. Send this link to the other person per pair in Ex2.</div>
+      <a class="file-open" href="roles/ex2_freelancer.html" target="_blank">Open →</a>
+    </div>
+    <div class="file-card">
+      <div class="file-name">roles/ex3_cofundadores.html</div>
+      <div class="file-desc">Group brief for all 4 members of Ex3. One link, everyone opens the same page.</div>
+      <a class="file-open" href="roles/ex3_cofundadores.html" target="_blank">Open →</a>
+    </div>
+  </div>
+
+  <!-- MODULE OVERVIEW TABLE -->
+  <div class="section-label">MODULE <span>OVERVIEW</span></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Session</th>
+        <th>Exercise</th>
+        <th>Type</th>
+        <th>Groups</th>
+        <th>Duration</th>
+        <th>Core concept</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1</strong></td>
+        <td>The Flat — sublessor vs. tenant</td>
+        <td><span class="tag dist">Distributive</span></td>
+        <td>Pairs</td>
+        <td>~55 min total</td>
+        <td>BATNA, anchoring, reservation price, ZOPA</td>
+      </tr>
+      <tr>
+        <td><strong>2</strong></td>
+        <td>The Project — startup vs. freelancer</td>
+        <td><span class="tag integ">Integrative</span></td>
+        <td>Pairs</td>
+        <td>~55 min total</td>
+        <td>Positions vs. interests, win-win, AI as preparation tool</td>
+      </tr>
+      <tr>
+        <td><strong>3</strong></td>
+        <td>The Co-Founders — equity, vesting, salary</td>
+        <td><span class="tag synth">Synthesis</span></td>
+        <td>Groups of 4</td>
+        <td>~50 min total</td>
+        <td>Design the deal, apply all concepts, present reasoning</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SESSION 1 -->
+  <div class="section-label">SESSION 1 — <span>THE FLAT</span></div>
+  <p style="font-size:15px;color:var(--muted);margin-bottom:28px;line-height:1.6;">Exercise 1 · Distributive negotiation · Pairs · ~55 minutes active. Students negotiate a 3-month sublease. One person has an apartment, the other needs one. There is a zone of possible agreement — most pairs will find it. Some will not deal. That's the lesson.</p>
+
+  <div class="timeline">
+    <div class="tl-item active">
+      <div class="tl-time">+0</div>
+      <div class="tl-body">
+        <div class="tl-phase">Zoom main room · All students</div>
+        <div class="tl-title">Open session + share board screen</div>
+        <p>Share your screen showing <strong>session1_board.html → Intro screen</strong>. Open Blackboard attendance. While they sign in, leave the "40% of negotiations fail" intro screen on display. Say nothing yet — let them read.</p>
+        <div class="tl-zoom">Zoom tip: Use "Share screen" in Zoom. Stay on Intro screen for 2–3 minutes while attendance loads. Keep chat open — you'll use it to paste links.</div>
+      </div>
+    </div>
+
+    <div class="tl-item active">
+      <div class="tl-time">+3</div>
+      <div class="tl-body">
+        <div class="tl-phase">Main room · Roles screen</div>
+        <div class="tl-title">Explain the exercise (2 min max) + paste role links</div>
+        <p>Move to the <strong>Roles screen</strong>. Give a one-sentence brief: <em>"You're subletting a flat. One of you has it, one of you needs it. Open your role card and read it. Do not share it with your partner."</em> Click <strong>COPY LINK</strong> for each role and paste both links into Zoom chat. Students open their assigned link.</p>
+        <div class="tl-note">Do not explain what BATNA or anchoring means. They'll experience it first, then you name it after.</div>
+      </div>
+    </div>
+
+    <div class="tl-item remote">
+      <div class="tl-time">+5</div>
+      <div class="tl-body">
+        <div class="tl-phase">Breakout rooms · Pairs</div>
+        <div class="tl-title">AI Prep — 10 minutes</div>
+        <p>Advance board to <strong>AI Prep Timer</strong> and start the 10-minute countdown. Send students to breakout rooms. They use the AI prompt on their role card to prepare individually. Tell them: <em>"Use the prompt, don't just read your card. You'll negotiate better for it."</em></p>
+        <div class="tl-tip">Hop into a couple of breakout rooms to see if they're actually using AI or just chatting. If they're chatting — nudge them to run the prompt.</div>
+      </div>
+    </div>
+
+    <div class="tl-item active">
+      <div class="tl-time">+15</div>
+      <div class="tl-body">
+        <div class="tl-phase">Breakout rooms · Pairs</div>
+        <div class="tl-title">Live negotiation — 25 minutes</div>
+        <p>Advance board to <strong>Negotiate Timer</strong>. Announce: <em>"Now you negotiate. One of you hit record on Zoom or your device — you'll need the video for submission. You have 25 minutes."</em> Students stay in breakout rooms. You stay in main room and monitor time.</p>
+        <div class="tl-note">The recording requirement is what makes this ungameable. They have to actually talk. You can spot-check at 1.5x speed later — you'll catch fabrications in 2 minutes.</div>
+      </div>
+    </div>
+
+    <div class="tl-item active">
+      <div class="tl-time">+40</div>
+      <div class="tl-body">
+        <div class="tl-phase">Main room · All students</div>
+        <div class="tl-title">Bring everyone back — Debrief (10 min)</div>
+        <p>Close breakout rooms. Move to the <strong>Debrief screen</strong>. Ask the class: "Who got a deal? Who didn't?" Wait for hands (or chat responses). Then ask: "What was your opening number, and why did you pick it?" This is where you name BATNA, anchoring, and ZOPA — after they've felt them, not before.</p>
+        <div class="tl-tip">Level 1: What happened? → Level 2: Why? (use the concepts) → Level 3: What would you do differently? Move through these at whatever pace the group gives you energy for.</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-time">+50</div>
+      <div class="tl-body">
+        <div class="tl-phase">Main room · Submit screen</div>
+        <div class="tl-title">Submission instructions (3 min)</div>
+        <p>Move to the <strong>Submit screen</strong>. Show what they need to upload: video, AI chat log, 3-line summary. The submission link should be live. <strong>Give them 24 hours</strong> — they may need to process the recording file. Dismiss the session.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIDDEN INFO EX1 -->
+  <div class="spoiler-box" id="spoiler1">
+    <div class="spoiler-header" onclick="document.getElementById('spoiler1').classList.toggle('open')">
+      <span class="spoiler-title">🔒 Spoiler — Ex1 Hidden Numbers (click to reveal)</span>
+      <span class="spoiler-arrow">▼</span>
+    </div>
+    <div class="spoiler-body">
+      <p><strong>Sublessor's numbers:</strong> Minimum €1,100/month (covers their rent), target €1,400. BATNA: Airbnb — uncertain income, not guaranteed.</p>
+      <p><strong>Tenant's numbers:</strong> Ceiling €1,300/month (company housing allowance), target €1,000. BATNA: student dorm — uncomfortable, far from internship.</p>
+      <div class="zopa-block">
+        <strong>ZOPA: €1,100 – €1,300.</strong> A deal anywhere in this range benefits both. The tenant's company pays up to €1,300 so the tenant loses nothing negotiating down — but the sublessor doesn't know this. The sublessor's real floor is €1,100, which the tenant doesn't know. Most pairs who reach a deal land around €1,150–€1,250. Pairs that fail usually do so because the sublessor anchors too high and the tenant counters too low and neither moves — classic distributive deadlock.
+      </div>
+      <ul>
+        <li><strong>Anchoring lesson:</strong> Sublessor should open at €1,400 or higher. Whoever anchors first usually pulls the outcome toward their end of the ZOPA.</li>
+        <li><strong>BATNA lesson:</strong> Tenant has weak BATNA (dorm) but shouldn't reveal it. Sublessor's Airbnb BATNA is also uncertain — neither side knows how weak the other's outside option is.</li>
+        <li><strong>No deal pairs:</strong> Treat this as a learning outcome, not a failure. Ask: what would have needed to be different for a deal to exist?</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SESSION 2 -->
+  <div class="section-label blue">SESSION 2 — <span>THE PROJECT</span></div>
+  <p style="font-size:15px;color:var(--muted);margin-bottom:28px;line-height:1.6;">Exercise 2 · Integrative negotiation · Pairs · ~55 minutes active. A startup wants to hire a freelance designer. Both sides are negotiating price — but one has a hidden interest (portfolio rights) that the other doesn't care about at all. The win-win is there. Most won't find it unless they ask the right question.</p>
+
+  <div class="timeline">
+    <div class="tl-item active">
+      <div class="tl-time">+0</div>
+      <div class="tl-body">
+        <div class="tl-phase">Main room · Intro screen</div>
+        <div class="tl-title">Open session + board intro</div>
+        <p>Share screen on <strong>session2_board.html → Intro screen</strong>. Same routine: Blackboard attendance while intro screen displays. One-sentence brief once they're settled: <em>"Different exercise this time. Pay attention to why."</em> Move to Roles screen and paste both links in chat.</p>
+      </div>
+    </div>
+
+    <div class="tl-item remote">
+      <div class="tl-time">+5</div>
+      <div class="tl-body">
+        <div class="tl-phase">Breakout rooms · Pairs</div>
+        <div class="tl-title">AI Prep — 10 minutes</div>
+        <p>Start the prep timer. Students go to breakout rooms and use their AI prompt individually. <strong>Both role cards have the same AI prompt</strong> — standard competitive framing ("how do I win?"). It gives decent tactical advice but misses the real opportunity.</p>
+        <div class="tl-tip">The prompt also instructs them to ask a second question: "What might the other side care about beyond the fee?" — this is the key move. Students who ask this second question are much more likely to find the win-win. Watch for it in their AI logs.</div>
+      </div>
+    </div>
+
+    <div class="tl-item active">
+      <div class="tl-time">+15</div>
+      <div class="tl-body">
+        <div class="tl-phase">Breakout rooms · Pairs</div>
+        <div class="tl-title">Live negotiation — 25 minutes</div>
+        <p>Advance board to <strong>Negotiate Timer</strong>. Remind them to hit record. Same format as Ex1. Students negotiate in breakout rooms. You stay in main room, monitor time, hop in occasionally.</p>
+        <div class="tl-note">The win-win: designer accepts a lower fee (as low as €5,800) in exchange for full portfolio rights. Startup doesn't care about portfolio rights — they'd give them freely. A deal at €5,800 + rights is worth more to the designer than €6,500 without. Watch for this in the submissions.</div>
+      </div>
+    </div>
+
+    <div class="tl-item active">
+      <div class="tl-time">+40</div>
+      <div class="tl-body">
+        <div class="tl-phase">Main room · All students</div>
+        <div class="tl-title">Bring everyone back — Debrief (10 min)</div>
+        <p>Advance to <strong>Debrief screen</strong>. Ask: "Who got a deal? What was the final number?" Then: "Did any pair agree on anything other than price?" This is where the win-win reveal lands. If someone found the portfolio rights angle, ask them to explain how they got there. If nobody did, reveal it yourself and ask: "What would you have needed to ask to find this?"</p>
+        <div class="tl-tip">The AI meta-lesson: both sides got identical AI advice ("how do I win"). It was good tactical advice — but it told nobody to ask what the other side actually needed. AI helps you prepare for the negotiation you expect, not the one that's actually possible. Ask them: what would a better prompt have looked like?</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-time">+50</div>
+      <div class="tl-body">
+        <div class="tl-phase">Main room · Submit + Reveal screen</div>
+        <div class="tl-title">Reveal + submission (5 min)</div>
+        <p>Advance to the <strong>Reveal screen</strong> if you want to show the hidden information visually. Then go to <strong>Submit screen</strong>. This time the reflection question is specifically: "Did you find a win-win? If yes, when? If no, why not?" Give them 24 hours.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIDDEN INFO EX2 -->
+  <div class="spoiler-box" id="spoiler2">
+    <div class="spoiler-header" onclick="document.getElementById('spoiler2').classList.toggle('open')">
+      <span class="spoiler-title">🔒 Spoiler — Ex2 Hidden Numbers & Win-Win (click to reveal)</span>
+      <span class="spoiler-arrow">▼</span>
+    </div>
+    <div class="spoiler-body">
+      <p><strong>Startup (Kura):</strong> Ceiling €7,000 (won't go above). Target €5,000. Has no opinion about portfolio rights — would happily say yes for free.</p>
+      <p><strong>Freelancer:</strong> Standard rate €8,000. Minimum €5,500 (below this, e-commerce clients are better). Portfolio rights worth €800–1,000 in career value.</p>
+      <div class="zopa-block">
+        <strong>Pure price ZOPA: €5,500 – €7,000.</strong> There is a deal on price alone. But the win-win: <strong>designer accepts lower fee + gets portfolio rights.</strong> A deal at €5,800 + rights is worth ~€6,600–€6,800 to the designer (fee + portfolio value) while costing the startup only €5,800. Pareto-superior to any price-only deal above €6,000 for the startup, and better than any price-only deal below €6,600 for the designer.
+      </div>
+      <ul>
+        <li><strong>Discovery rate:</strong> Expect ~25–35% of pairs to find the portfolio rights angle. This is normal — integrative agreements require insight, not just tactics.</li>
+        <li><strong>How they find it:</strong> Usually when one side asks "is there anything other than price that matters to you?" — or when they follow the second AI prompt instruction to ask about non-price interests.</li>
+        <li><strong>AI meta-lesson:</strong> Both roles got identical AI prompts ("how do I win?"). Good advice for a price war, useless for finding the win-win. The right prompt would have been: "What does the other side value that costs me nothing to give?"</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SESSION 3 -->
+  <div class="section-label purple">SESSION 3 — <span>THE CO-FOUNDERS</span></div>
+  <p style="font-size:15px;color:var(--muted);margin-bottom:28px;line-height:1.6;">Exercise 3 · Synthesis · Groups of 4 · ~50 minutes active. No live negotiation this time. Groups analyze two co-founders' situation, design the best possible agreement across 4 issues, and record a 3-minute video explaining their reasoning. This tests application, not performance.</p>
+
+  <div class="timeline">
+    <div class="tl-item active">
+      <div class="tl-time">+0</div>
+      <div class="tl-body">
+        <div class="tl-phase">Main room · Intro screen</div>
+        <div class="tl-title">Open session + briefing</div>
+        <p>Share screen on <strong>session3_board.html → Intro screen</strong>. Attendance. Brief: <em>"Last exercise. This time you're not negotiating — you're designing. Groups of 4. Figure out the best possible deal for two people, then explain why it's good for both."</em> Move to Briefing screen and paste the group brief link in chat.</p>
+      </div>
+    </div>
+
+    <div class="tl-item remote">
+      <div class="tl-time">+5</div>
+      <div class="tl-body">
+        <div class="tl-phase">Breakout rooms · Groups of 4</div>
+        <div class="tl-title">Work time — 35 minutes</div>
+        <p>Start the 35-minute timer. Send groups to breakout rooms. The brief walks them through 4 steps: assign A/B perspectives, use AI to analyze each founder, design the agreement together, then record their 3-minute video inside the breakout room.</p>
+        <div class="tl-tip">The video must have all 4 people on camera and everyone must speak. This prevents one person writing a script and others reading it. Check this when reviewing.</div>
+        <div class="tl-zoom">Zoom tip: Each group records their video using Zoom local recording (or any screen recorder). They then upload the file with their submission. A phone recording of a Zoom screen is also fine — you're assessing reasoning, not production value.</div>
+      </div>
+    </div>
+
+    <div class="tl-item active">
+      <div class="tl-time">+40</div>
+      <div class="tl-body">
+        <div class="tl-phase">Main room · Presentations screen</div>
+        <div class="tl-title">Optional live group presentations (10 min)</div>
+        <p>Bring everyone back. If time permits and the group has energy: ask 1–2 groups to present their proposed agreement live (2 min each). Ask: <em>"Why does this deal work for Founder B? What happens if Founder A leaves after 6 months under your vesting schedule?"</em> These questions stress-test the reasoning.</p>
+        <div class="tl-tip">If the group is low energy or time is short, skip live presentations and go straight to Wrap. The video submissions serve the same purpose.</div>
+      </div>
+    </div>
+
+    <div class="tl-item active">
+      <div class="tl-time">+50</div>
+      <div class="tl-body">
+        <div class="tl-phase">Main room · Wrap screen</div>
+        <div class="tl-title">Module wrap + submit (5 min)</div>
+        <p>Advance to the <strong>Wrap screen</strong>. Click through the 3 concepts recap (distributive, integrative, multi-issue). Then show the "3 Questions" list. Move to <strong>Submit screen</strong>. Tell them: <em>"Submit today. Video + AI logs + one paragraph about which issue was hardest and why. That's it. You're done."</em></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPOILER EX3 -->
+  <div class="spoiler-box" id="spoiler3">
+    <div class="spoiler-header" onclick="document.getElementById('spoiler3').classList.toggle('open')">
+      <span class="spoiler-title">🔒 Spoiler — Ex3 Strong Agreement Structure (click to reveal)</span>
+      <span class="spoiler-arrow">▼</span>
+    </div>
+    <div class="spoiler-body">
+      <p>There is no single "right answer" — but there are strong and weak agreements. Use this to evaluate group reasoning, not to check a solution.</p>
+      <ul>
+        <li><strong>Equity:</strong> 50-50 is defensible and easy to justify. A 55-45 split in A's favor (technical founder) is also reasonable given 18 months of solo building — but B's business contribution is harder to measure. The strongest answers acknowledge both arguments rather than picking one.</li>
+        <li><strong>Vesting:</strong> A 4-year vest with a 1-year cliff is industry standard for a reason. Both founders should be on identical schedules. Groups that propose different vesting for A and B typically haven't understood that vesting protects both sides symmetrically.</li>
+        <li><strong>Decision-making:</strong> 50-50 voting with a deadlock mechanism (e.g., agreed external advisor, pre-defined domain authority) is better than giving one founder veto power. Weak answers just say "50-50" without addressing deadlock.</li>
+        <li><strong>Salary:</strong> The elegant solution is deferred salary: B starts drawing a minimal salary at month 4–5 (covering their financial floor), A defers. This is logged as a company liability that both eventually receive. Strong answers show they understood B's financial constraint isn't about greed — it's about runway.</li>
+        <li><strong>Strongest agreements:</strong> Address all 4 issues with specific terms AND explain why each term serves both founders. Generic agreements ("we'll figure it out later") score low regardless of content.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- GRADING -->
+  <div class="section-label green">GRADING <span>GUIDE</span></div>
+  <p style="font-size:15px;color:var(--muted);margin-bottom:24px;line-height:1.6;">Three submissions per group, reviewed asynchronously. Watch videos at 1.5x speed. You're grading reasoning, not outcomes — a failed deal with good analysis is better than a lucky deal with no insight.</p>
+
+  <div class="grading-grid">
+    <div class="grade-card">
+      <span class="grade-label">Pass</span>
+      <span class="grade-score pass">C</span>
+      <ul>
+        <li>Negotiation happened <strong>live on video</strong></li>
+        <li>AI prompt was used (log shows conversation)</li>
+        <li>Written reflection exists</li>
+        <li>All required submissions present</li>
+      </ul>
+    </div>
+    <div class="grade-card">
+      <span class="grade-label">Good</span>
+      <span class="grade-score good">B</span>
+      <ul>
+        <li>Can name and apply <strong>at least 2 concepts</strong> (BATNA, anchoring, positions vs. interests)</li>
+        <li>Reflection shows what they noticed during the negotiation</li>
+        <li>AI was used strategically, not just prompted once</li>
+        <li>Ex3: agreement covers all 4 issues with reasons</li>
+      </ul>
+    </div>
+    <div class="grade-card">
+      <span class="grade-label">Great</span>
+      <span class="grade-score great">A</span>
+      <ul>
+        <li><strong>Used concepts to explain their choices</strong>, not just name them</li>
+        <li>Ex2: identified or explicitly pursued the win-win (portfolio rights)</li>
+        <li>Reflection shows genuine update in thinking ("I thought X, but actually Y")</li>
+        <li>Ex3: everyone speaks and can defend individual terms under challenge</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="red-box">
+    <h4>Red flags in submissions — investigate these</h4>
+    <ul>
+      <li>Video shows only one person speaking (others are silent / off-camera) — especially in Ex3</li>
+      <li>AI log is a single question with no follow-up — they didn't really use it</li>
+      <li>Reflection is generic (doesn't reference anything specific from their negotiation)</li>
+      <li>Ex1/Ex2 video is screen-share of a document, not a live conversation — not acceptable</li>
+      <li>Ex3 video: one person presenting while others nod — everyone must explain at least one term</li>
+    </ul>
+  </div>
+
+  <div class="green-box">
+    <h4>Signals of genuine learning</h4>
+    <ul>
+      <li>They mention something they almost did but stopped themselves based on AI advice</li>
+      <li>They describe a moment where they realized the other side had a different interest</li>
+      <li>AI log shows them asking "what does the other side care about?" — not just "how do I win?"</li>
+      <li>Written reflection identifies the specific moment a deal became possible (or impossible)</li>
+      <li>Ex3: they explain why a 1-year cliff protects both founders, not just one</li>
+    </ul>
+  </div>
+
+  <!-- TROUBLESHOOTING -->
+  <div class="section-label">TROUBLESHOOT<span>ING</span></div>
+
+  <div class="spoiler-box" id="ts1">
+    <div class="spoiler-header" onclick="document.getElementById('ts1').classList.toggle('open')">
+      <span class="spoiler-title">A student opens the wrong role card and sees both sides</span>
+      <span class="spoiler-arrow">▼</span>
+    </div>
+    <div class="spoiler-body">
+      <p>This happens. Role cards have a red <strong>CONFIDENTIAL — do not share</strong> bar at the top. If a student sees both cards by mistake, reassign them to a different pair with someone they haven't already briefed. If that's not possible, have them sit out and observe — they can still submit a reflection.</p>
+    </div>
+  </div>
+
+  <div class="spoiler-box" id="ts2">
+    <div class="spoiler-header" onclick="document.getElementById('ts2').classList.toggle('open')">
+      <span class="spoiler-title">A pair finishes negotiating in 8 minutes and is just sitting there</span>
+      <span class="spoiler-arrow">▼</span>
+    </div>
+    <div class="spoiler-body">
+      <p>Two possibilities: they reached a deal very fast (ask them to try renegotiating one term — "what if you had pushed harder on X?"), or they hit deadlock and gave up immediately. In the second case, ask them to go back and identify the one concession that would have broken the deadlock, then try it.</p>
+    </div>
+  </div>
+
+  <div class="spoiler-box" id="ts3">
+    <div class="spoiler-header" onclick="document.getElementById('ts3').classList.toggle('open')">
+      <span class="spoiler-title">Students are negotiating via chat/email instead of live video</span>
+      <span class="spoiler-arrow">▼</span>
+    </div>
+    <div class="spoiler-body">
+      <p>This defeats the purpose. The video requirement exists because live negotiation cannot be faked or generated. Remind them before they start: <em>"The submission requires a video of you negotiating live, faces visible, in real time. A chat transcript does not qualify."</em> If they submit chat logs instead of video, return it as incomplete.</p>
+    </div>
+  </div>
+
+  <div class="spoiler-box" id="ts4">
+    <div class="spoiler-header" onclick="document.getElementById('ts4').classList.toggle('open')">
+      <span class="spoiler-title">Ex3 group can't agree on a vesting schedule or equity split</span>
+      <span class="spoiler-arrow">▼</span>
+    </div>
+    <div class="spoiler-body">
+      <p>This is fine — genuine disagreement is learning material. Encourage them to include the disagreement in their video: "We couldn't agree on issue X. Here's why each side's argument has merit." A group that presents real tension and explains it clearly scores higher than a group that glosses over disagreement with a vague compromise.</p>
+    </div>
+  </div>
+
+  <div class="spoiler-box" id="ts5">
+    <div class="spoiler-header" onclick="document.getElementById('ts5').classList.toggle('open')">
+      <span class="spoiler-title">Students are running AI prompts and just reading back the output</span>
+      <span class="spoiler-arrow">▼</span>
+    </div>
+    <div class="spoiler-body">
+      <p>In the debrief, ask: "Did anyone get advice from AI that they then changed or rejected? Why?" This shifts the conversation from AI-as-oracle to AI-as-starting-point. In the AI meta-lesson (Ex2 debrief especially): the identical prompts for both roles produced identical competitive advice — that's the whole point. The students who found the win-win were the ones who moved beyond the AI's first answer.</p>
+    </div>
+  </div>
+
+  <div class="spoiler-box" id="ts6">
+    <div class="spoiler-header" onclick="document.getElementById('ts6').classList.toggle('open')">
+      <span class="spoiler-title">Very low participation in the main room debrief</span>
+      <span class="spoiler-arrow">▼</span>
+    </div>
+    <div class="spoiler-body">
+      <p>Remote debriefs are harder than in-person ones. Use the Zoom chat as a low-stakes parallel channel: ask everyone to type their final deal number (Ex1/Ex2) or their answer to issue 1 (Ex3). Once the chat fills up, call on specific people: "I see €1,180 here — [name], how did you land there?" The chat gives everyone a way to participate without speaking first.</p>
+    </div>
+  </div>
+
+  <!-- BOTTOM SPACING -->
+  <div style="height: 40px;"></div>
+
+</div>
+
+<script>
+  // All spoilers use onclick on the header — no JS initialization needed
+</script>
+</body>
+</html>

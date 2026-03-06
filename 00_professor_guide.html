@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Professor Guide — Negotiation Module</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a12; --surface: #13131f; --border: #2a2a3e; --text: #e8e8f0;
+    --muted: #6b6b8a; --accent: #ff4757; --blue: #3d84ff; --green: #2ed573;
+    --gold: #ffd32a; --purple: #a55eea; --orange: #ff6b35;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; }
+
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 24px 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 3px; }
+  header h1 span { color: var(--accent); }
+  .nav { display: flex; gap: 8px; }
+  .nav a { background: var(--border); color: var(--text); text-decoration: none; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 1px; padding: 6px 14px; transition: all 0.2s; }
+  .nav a:hover { background: var(--accent); color: #fff; }
+
+  .content { max-width: 900px; margin: 0 auto; padding: 40px 40px 80px; }
+
+  .module-title { font-family: 'Bebas Neue', sans-serif; font-size: 64px; letter-spacing: 2px; line-height: 0.9; margin-bottom: 8px; }
+  .module-title span { color: var(--accent); }
+  .module-sub { font-size: 16px; color: var(--muted); margin-bottom: 40px; line-height: 1.6; }
+
+  .overview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px; }
+  .overview-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; }
+  .ov-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: block; }
+  .ov-val { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--gold); display: block; line-height: 1; }
+  .ov-desc { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+
+  .section-label { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; color: var(--text); margin: 48px 0 20px; padding-top: 48px; border-top: 1px solid var(--border); }
+  .section-label span { color: var(--gold); }
+  .section-label.blue span { color: var(--blue); }
+  .section-label.green span { color: var(--green); }
+
+  .timeline { display: flex; flex-direction: column; gap: 0; margin-bottom: 32px; }
+  .tl-item { display: grid; grid-template-columns: 80px 1fr; gap: 20px; padding: 0; }
+  .tl-time { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--muted); padding-top: 20px; text-align: right; flex-shrink: 0; }
+  .tl-body { border-left: 2px solid var(--border); padding: 20px 0 20px 24px; position: relative; }
+  .tl-body::before { content: ''; position: absolute; left: -7px; top: 26px; width: 12px; height: 12px; background: var(--border); border-radius: 50%; }
+  .tl-item.active .tl-body { border-left-color: var(--gold); }
+  .tl-item.active .tl-body::before { background: var(--gold); }
+  .tl-item.watch .tl-body { border-left-color: var(--accent); }
+  .tl-item.watch .tl-body::before { background: var(--accent); }
+  .tl-phase { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .tl-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .tl-body p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .tl-body p strong { color: var(--text); }
+  .tl-note { margin-top: 10px; background: rgba(255,71,87,0.07); border-left: 3px solid var(--accent); padding: 10px 14px; font-size: 13px; color: var(--text); line-height: 1.5; }
+  .tl-tip { margin-top: 10px; background: rgba(61,132,255,0.07); border-left: 3px solid var(--blue); padding: 10px 14px; font-size: 13px; color: var(--blue); line-height: 1.5; }
+
+  .spoiler-box { background: var(--surface); border: 1px solid var(--border); margin-bottom: 20px; }
+  .spoiler-header { padding: 16px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; }
+  .spoiler-header:hover { background: var(--border); }
+  .spoiler-title { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .spoiler-arrow { font-size: 12px; color: var(--muted); transition: transform 0.2s; }
+  .spoiler-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.4s, padding 0.2s; }
+  .spoiler-box.open .spoiler-body { max-height: 600px; padding: 0 20px 20px; }
+  .spoiler-box.open .spoiler-arrow { transform: rotate(180deg); }
+  .spoiler-body p { font-size: 14px; line-height: 1.7; color: var(--muted); margin-bottom: 10px; }
+  .spoiler-body p strong { color: var(--text); }
+  .spoiler-body ul { list-style: none; display: flex; flex-direction: column; gap: 8px; padding-left: 0; }
+  .spoiler-body ul li { font-size: 14px; line-height: 1.5; padding-left: 16px; position: relative; color: var(--muted); }
+  .spoiler-body ul li::before { content: '→'; position: absolute; left: 0; color: var(--blue); }
+  .spoiler-body ul li strong { color: var(--text); }
+
+  .red-box { background: rgba(255,71,87,0.07); border: 1px solid rgba(255,71,87,0.3); padding: 18px 22px; margin-bottom: 20px; }
+  .red-box h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  .red-box p { font-size: 14px; line-height: 1.6; color: var(--text); }
+
+  .green-box { background: rgba(46,213,115,0.06); border: 1px solid rgba(46,213,115,0.25); padding: 18px 22px; margin-bottom: 20px; }
+  .green-box h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--green); margin-bottom: 10px; }
+  .green-box p { font-size: 14px; line-height: 1.6; color: var(--text); }
+
+  .files-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+  .file-card { background: var(--surface); border: 1px solid var(--border); padding: 16px; }
+  .file-name { font-family: monospace; font-size: 13px; color: var(--gold); margin-bottom: 6px; }
+  .file-desc { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  .file-open { display: inline-block; margin-top: 8px; background: var(--border); color: var(--text); text-decoration: none; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 1px; padding: 4px 12px; transition: all 0.2s; }
+  .file-open:hover { background: var(--gold); color: var(--bg); }
+
+  .zopa-diagram { background: var(--surface); border: 1px solid var(--border); padding: 24px; margin-bottom: 20px; }
+  .zopa-track { height: 48px; background: var(--bg); position: relative; margin: 16px 0; border: 1px solid var(--border); }
+  .zopa-fill { position: absolute; height: 100%; background: rgba(46,213,115,0.25); border: 1px solid var(--green); left: 40%; width: 27%; display: flex; align-items: center; justify-content: center; }
+  .zopa-label-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+  .zopa-marker { position: absolute; height: 100%; width: 2px; }
+  .zopa-marker.cand-min { background: var(--green); left: 40%; }
+  .zopa-marker.hr-ceil { background: var(--purple); left: 67%; }
+  .zopa-marker.hr-open { background: var(--gold); left: 10%; }
+  .zopa-marker.cand-tgt { background: var(--accent); left: 57%; }
+
+  pre { background: var(--surface); border: 1px solid var(--border); padding: 16px; font-size: 13px; line-height: 1.6; overflow-x: auto; border-left: 3px solid var(--blue); color: var(--muted); }
+  pre strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>PROFESSOR GUIDE — <span>NEGOTIATION</span></h1>
+  <div class="nav">
+    <a href="01_session1_board.html" target="_blank">→ Session 1 Board</a>
+    <a href="02_session2_board.html" target="_blank">→ Session 2 Board</a>
+    <a href="03_session3_wrap.html" target="_blank">→ Session 3 Wrap</a>
+    <a href="04_results_board.html" target="_blank">→ Results Board</a>
+  </div>
+</header>
+
+<div class="content">
+
+  <div class="module-title">NEGOTIATION<br><span>MODULE</span></div>
+  <div class="module-sub">Three sessions, one day (08:30–13:30). Two exercises that cannot be faked. Theory emerges from what students just experienced — never before. AI is a tool they actually use, not a topic you lecture about.</div>
+
+  <div class="overview-grid">
+    <div class="overview-card">
+      <span class="ov-label">Students</span>
+      <span class="ov-val">~120</span>
+      <span class="ov-desc">~60 pairs negotiating simultaneously</span>
+    </div>
+    <div class="overview-card">
+      <span class="ov-label">Total time</span>
+      <span class="ov-val">~5h</span>
+      <span class="ov-desc">Sessions 1+2 are full. Session 3 is 30 min max. Let them go early.</span>
+    </div>
+    <div class="overview-card">
+      <span class="ov-label">Sessions</span>
+      <span class="ov-val">3</span>
+      <span class="ov-desc">08:30 · 10:15 · 12:00 — same day, same room</span>
+    </div>
+  </div>
+
+  <!-- FILES -->
+  <div class="section-label">FILES & <span>SETUP</span></div>
+
+  <div class="files-grid">
+    <div class="file-card">
+      <div class="file-name">01_session1_board.html</div>
+      <div class="file-desc">Session 1 live board — intro, setup, timers, reveal, debrief. Project this on screen.</div>
+      <a class="file-open" href="01_session1_board.html" target="_blank">Open →</a>
+    </div>
+    <div class="file-card">
+      <div class="file-name">02_session2_board.html</div>
+      <div class="file-desc">Session 2 live board — same structure, different scenario. The integrative one.</div>
+      <a class="file-open" href="02_session2_board.html" target="_blank">Open →</a>
+    </div>
+    <div class="file-card">
+      <div class="file-name">03_session3_wrap.html</div>
+      <div class="file-desc">Session 3 — 20 min wrap. What they did. 3 questions. Done. Go home.</div>
+      <a class="file-open" href="03_session3_wrap.html" target="_blank">Open →</a>
+    </div>
+    <div class="file-card">
+      <div class="file-name">04_results_board.html</div>
+      <div class="file-desc">Live results dashboard. You enter results as pairs finish. Bar chart updates in real time.</div>
+      <a class="file-open" href="04_results_board.html" target="_blank">Open →</a>
+    </div>
+    <div class="file-card">
+      <div class="file-name">roles/s1_candidate.html</div>
+      <div class="file-desc">Role card: The job candidate. Mobile-friendly. Includes AI prompt to copy-paste.</div>
+      <a class="file-open" href="roles/s1_candidate.html" target="_blank">Open →</a>
+    </div>
+    <div class="file-card">
+      <div class="file-name">roles/s1_hr.html</div>
+      <div class="file-desc">Role card: The HR manager at Nexus. Mobile-friendly. Includes AI prompt.</div>
+      <a class="file-open" href="roles/s1_hr.html" target="_blank">Open →</a>
+    </div>
+    <div class="file-card">
+      <div class="file-name">roles/s2_podcast.html</div>
+      <div class="file-desc">Role card: PodcastOne (audio only). The integrative trap. Includes AI prompt.</div>
+      <a class="file-open" href="roles/s2_podcast.html" target="_blank">Open →</a>
+    </div>
+    <div class="file-card">
+      <div class="file-name">roles/s2_youtube.html</div>
+      <div class="file-desc">Role card: VisualSport (video only). The other side of the trap. Includes AI prompt.</div>
+      <a class="file-open" href="roles/s2_youtube.html" target="_blank">Open →</a>
+    </div>
+  </div>
+
+  <div class="red-box">
+    <h4>Before the day: GitHub Pages setup</h4>
+    <p>All role card URLs (roles/s1_candidate.html etc.) need to be accessible on students' phones. Push this entire negotiation folder to GitHub Pages. Then generate QR codes for the 4 role card URLs and paste them into the two setup screens (the placeholder squares marked "ADD QR CODE"). Use <strong>qr-code-generator.com</strong> or similar — free, no account needed.</p>
+  </div>
+
+  <!-- SESSION 1 -->
+  <div class="section-label">SESSION 1 — <span>THE OFFER</span></div>
+  <p style="font-size:15px;color:var(--muted);margin-bottom:28px;line-height:1.6;">08:30 – 10:00 · 90 minutes · Distributive negotiation. Students are half asleep. Throw them straight in — minimum preamble, maximum doing.</p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-time">08:30</div>
+      <div class="tl-body">
+        <div class="tl-phase">Blackboard · Attendance</div>
+        <div class="tl-title">Open session + take attendance</div>
+        <p>Start Blackboard attendance first. While they're signing in, project the <strong>intro screen</strong> (the big €361K stat). Say nothing yet — let it sit.</p>
+      </div>
+    </div>
+    <div class="tl-item active">
+      <div class="tl-time">08:35</div>
+      <div class="tl-body">
+        <div class="tl-phase">Setup · 5 min</div>
+        <div class="tl-title">Explain the rules — max 3 minutes</div>
+        <p>Go to the <strong>Setup screen</strong>. Read the 3 rules out loud. Show the QR codes. <strong>"Left side of the room: scan the left code. Right side: scan the right code. Negotiate with the person next to you."</strong></p>
+        <div class="tl-tip">💬 Script: "You have a job offer. You're either the candidate or the HR manager. Your card tells you everything. You have 7 minutes to read it and use AI to prepare. Then I'm starting the negotiation timer and you talk. That's it."</div>
+      </div>
+    </div>
+    <div class="tl-item active">
+      <div class="tl-time">08:40</div>
+      <div class="tl-body">
+        <div class="tl-phase">AI Prep · 7 min</div>
+        <div class="tl-title">Students prep with AI — you watch</div>
+        <p>Start the <strong>AI Prep timer</strong>. Students read cards and use Claude/ChatGPT. <strong>Walk the room.</strong> This is data for your debrief: who looks at their phone immediately, who reads the card first, who doesn't use AI at all.</p>
+        <div class="tl-note">⚠ Don't help them with strategy. If anyone asks a question, say "Your card answers that" or "Ask AI."</div>
+      </div>
+    </div>
+    <div class="tl-item active">
+      <div class="tl-time">08:50</div>
+      <div class="tl-body">
+        <div class="tl-phase">Negotiation · 20 min</div>
+        <div class="tl-title">Live negotiation — all 60 pairs simultaneously</div>
+        <p>Start the <strong>Negotiation timer</strong>. The room gets loud. <strong>Walk constantly.</strong> You are looking for:</p>
+        <ul style="margin-top:8px;list-style:none;display:flex;flex-direction:column;gap:6px;">
+          <li style="padding-left:14px;position:relative;font-size:13px;color:var(--muted);"><span style="position:absolute;left:0;color:var(--accent)">→</span> Who makes the first offer, and how high/low is it?</li>
+          <li style="padding-left:14px;position:relative;font-size:13px;color:var(--muted);"><span style="position:absolute;left:0;color:var(--accent)">→</span> Anyone revealing their minimum? ("I really can't go below…")</li>
+          <li style="padding-left:14px;position:relative;font-size:13px;color:var(--muted);"><span style="position:absolute;left:0;color:var(--accent)">→</span> Anyone walking away? Anyone clearly caving under pressure?</li>
+          <li style="padding-left:14px;position:relative;font-size:13px;color:var(--muted);"><span style="position:absolute;left:0;color:var(--accent)">→</span> Any pair discovering the non-monetary trade? (remote work, start date)</li>
+        </ul>
+        <div class="tl-tip">These observations are your debrief gold. Make mental notes of 2-3 specific moments to reference by name ("I noticed one pair in the third row...")</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">09:15</div>
+      <div class="tl-body">
+        <div class="tl-phase">Results · 10 min</div>
+        <div class="tl-title">Collect outcomes — live chart</div>
+        <p>Open the <strong>Results Board</strong> (keep session board in another window). Ask pairs to call out their final salary. Enter them one by one. The bar chart populates in real time — project it. <strong>"Who got above €2,800? Below €2,500? Anyone walk away?"</strong></p>
+        <div class="tl-tip">The chart itself is the lesson before the lesson. Let them see the spread. Say nothing yet.</div>
+      </div>
+    </div>
+    <div class="tl-item active">
+      <div class="tl-time">09:25</div>
+      <div class="tl-body">
+        <div class="tl-phase">Reveal · 10 min</div>
+        <div class="tl-title">Reveal the hidden information — click through concepts</div>
+        <p>Go to the <strong>Reveal screen</strong> on Session 1 board. Click each concept card one at a time — reveal BATNA, then ZOPA, then Anchoring, then Reservation Price. Ask the class to connect each one to what just happened to them.</p>
+        <div class="tl-note">⚠ The ZOPA reveal is the most powerful moment: "The candidate's minimum was €2,500. HR's ceiling was €2,900. There was a €400 window. Did you find it?" This is when they realize what information they were sitting on.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">09:35</div>
+      <div class="tl-body">
+        <div class="tl-phase">Debrief · 25 min</div>
+        <div class="tl-title">Structured debrief — 3 levels</div>
+        <p>Switch to the <strong>Debrief screen</strong>. Work through Level 1 (facts), Level 2 (analysis), Level 3 (transfer). Don't rush. The best debrief moment: ask "Who felt uncomfortable making a high first offer?" and wait for hands. Then: "What did that discomfort cost you?" — let them calculate it.</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">10:00</div>
+      <div class="tl-body">
+        <div class="tl-phase">Break</div>
+        <div class="tl-title">15-minute break</div>
+        <p>Announce break. Tell them Session 2 starts exactly at 10:15 — same format, different scenario. Give no other preview.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPOILER: S1 ANSWERS -->
+  <div class="spoiler-box" onclick="this.classList.toggle('open')">
+    <div class="spoiler-header">
+      <div class="spoiler-title" style="color:var(--gold)">The Numbers — Session 1 (Confidential)</div>
+      <div class="spoiler-arrow">▼</div>
+    </div>
+    <div class="spoiler-body">
+      <p><strong>Candidate's cards:</strong> Target €2,800 · Minimum (reservation price) €2,500 · BATNA: consulting callback (uncertain, 6 weeks away — a weak BATNA). Wants: remote work (2 days), October start.</p>
+      <p><strong>HR's cards:</strong> Opening offer €2,200 · Target €2,400 · Ceiling (budget cap) €2,900 · BATNA: second candidate at €2,500 but weaker. Can offer: remote work up to 3 days, flexible start, €500 training, 6-month review.</p>
+      <p><strong>ZOPA:</strong> €2,500 to €2,900 — a €400 window.</p>
+      <p><strong>The anchoring lesson:</strong> Candidates who open at €3,200+ will statistically land significantly higher than those who open at €2,700. The same information produces very different outcomes based purely on first number said.</p>
+      <p><strong>The non-monetary trade:</strong> HR can offer remote work (costs nothing) + early review. Candidate values these. A deal at €2,600 + 2 remote days is better for the candidate than €2,700 with no flexibility.</p>
+    </div>
+  </div>
+
+  <!-- SESSION 2 -->
+  <div class="section-label blue">SESSION 2 — <span>THE RIGHTS</span></div>
+  <p style="font-size:15px;color:var(--muted);margin-bottom:28px;line-height:1.6;">10:15 – 11:45 · 90 minutes · Integrative negotiation. Best energy of the day. Same format — but this time, most of them will miss the win-win. That's the lesson.</p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-time">10:15</div>
+      <div class="tl-body">
+        <div class="tl-phase">Blackboard · Attendance</div>
+        <div class="tl-title">Open session 2 — attendance</div>
+        <p>Start attendance. Project Session 2 intro: "Two companies. One athlete. One interview. Whoever pays more — wins." Let them read it. Say: "That's what you think."</p>
+      </div>
+    </div>
+    <div class="tl-item active">
+      <div class="tl-time">10:18</div>
+      <div class="tl-body">
+        <div class="tl-phase">Setup · 3 min</div>
+        <div class="tl-title">Same format, new roles</div>
+        <p>Show Setup screen. Same sides of the room as before, but new QR codes. "Left side: PodcastOne. Right side: VisualSport. Same 3 rules." No further explanation.</p>
+        <div class="tl-note">⚠ Do NOT say anything about the scenario being "different this time." Let them discover it.</div>
+      </div>
+    </div>
+    <div class="tl-item active">
+      <div class="tl-time">10:21</div>
+      <div class="tl-body">
+        <div class="tl-phase">AI Prep · 7 min</div>
+        <div class="tl-title">Students prep with AI — pay close attention</div>
+        <p>Start AI Prep timer. <strong>Walk the room more carefully this time.</strong> You're watching for: does anyone notice the "audio only" or "video only" detail? Do any pairs start prepping as if it's integrative? This is rare — most will be competitive from the start.</p>
+        <div class="tl-tip">The key observation: AI will give both sides identical competitive advice. Note a few examples of what students got from AI — you'll use these in the debrief.</div>
+      </div>
+    </div>
+    <div class="tl-item active">
+      <div class="tl-time">10:31</div>
+      <div class="tl-body">
+        <div class="tl-phase">Negotiation · 20 min</div>
+        <div class="tl-title">Live negotiation — watch for the pivot moment</div>
+        <p>Start Negotiation timer. Walk the room. The critical thing to watch: <strong>the moment a pair stops competing and starts asking questions.</strong> That's the pivot to win-win. Note which pairs hit it and when (minute 5? minute 20? never?).</p>
+        <div class="tl-note">⚠ If a pair is clearly stuck in competitive mode at minute 15, you can prompt: "Have you asked each other what you're going to do with the interview?" — this is enough of a hint to see if they can find the win-win from there.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">11:06</div>
+      <div class="tl-body">
+        <div class="tl-phase">Outcomes · 5 min</div>
+        <div class="tl-title">Count outcomes — project the breakdown</div>
+        <p>Go to Results Board, Session 2 tab. Ask: "Who split the rights? Who had one side win? No deal?" Click the counters. The percentage bar chart updates instantly. Let them see the number.</p>
+      </div>
+    </div>
+    <div class="tl-item active">
+      <div class="tl-time">11:11</div>
+      <div class="tl-body">
+        <div class="tl-phase">Reveal · 10 min</div>
+        <div class="tl-title">The reveal — the most important moment of the day</div>
+        <p>Switch to Session 2 Reveal screen. Read the two role reveal cards aloud. Let the room absorb it. Then read the win-win box. <strong>Wait in silence for 5 seconds.</strong> Let the "oh" moment land.</p>
+        <div class="tl-tip">The silence after the reveal is not awkward — it's the sound of learning. Don't fill it immediately.</div>
+      </div>
+    </div>
+    <div class="tl-item active">
+      <div class="tl-time">11:21</div>
+      <div class="tl-body">
+        <div class="tl-phase">Debrief · 24 min</div>
+        <div class="tl-title">Debrief — the AI meta-lesson is key here</div>
+        <p>Go to the Debrief screen. Work through the 4 levels, but <strong>make sure you hit the AI meta-lesson section:</strong> "Both cards had identical prompts. Both got identical advice. Why? What better question would have unlocked this?" — this is the most transferable insight from the whole day.</p>
+        <div class="tl-note">Key line to deliver: "AI gives you what you ask for. If you ask 'how do I win?' — it tells you how to win. If you ask 'what does the other side actually need?' — you get a completely different answer. The quality of your AI use depends on the quality of your thinking. The tool amplifies your frame. It doesn't give you a better one."</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">11:45</div>
+      <div class="tl-body">
+        <div class="tl-phase">Break</div>
+        <div class="tl-title">15-minute break</div>
+        <p>Announce that Session 3 is short — attendance only + a 20-minute wrap, then they can go home early. This will get a very good reaction.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPOILER: S2 ANSWERS -->
+  <div class="spoiler-box" onclick="this.classList.toggle('open')">
+    <div class="spoiler-header">
+      <div class="spoiler-title" style="color:var(--blue)">The Hidden Truth — Session 2 (Confidential)</div>
+      <div class="spoiler-arrow">▼</div>
+    </div>
+    <div class="spoiler-body">
+      <p><strong>PodcastOne</strong> is audio-only. They need the audio recording and audio distribution rights. They have absolutely no use for video footage.</p>
+      <p><strong>VisualSport</strong> is video-only. They need the video footage and video distribution rights. They have absolutely no use for audio rights.</p>
+      <p><strong>The win-win:</strong> Split the rights. PodcastOne gets audio exclusivity. VisualSport gets video exclusivity. Both pay well under €30,000. Marco Costa earns from two separate deals.</p>
+      <p><strong>Historical benchmark:</strong> In research settings, 30–40% of pairs discover this in similar scenarios. Most pairs never ask "what are you going to do with the interview?" — they assume identical needs because both say "we want exclusive rights."</p>
+      <p><strong>The AI lesson:</strong> Both prompts say "How do I win?" — both get competitive advice. A better prompt: "I want exclusive interview rights. The other company also wants them. Before assuming we're competing — is there a way we both get what we need? What are some creative options?" That reframe changes everything.</p>
+    </div>
+  </div>
+
+  <!-- SESSION 3 -->
+  <div class="section-label green">SESSION 3 — <span>THE WRAP</span></div>
+  <p style="font-size:15px;color:var(--muted);margin-bottom:28px;line-height:1.6;">12:00 – 12:30 (target) · 90 minutes scheduled, but you're done in 30. Take attendance, do the wrap, let them go. They will love you for it.</p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-time">12:00</div>
+      <div class="tl-body">
+        <div class="tl-phase">Blackboard · Attendance</div>
+        <div class="tl-title">Open session 3 — attendance</div>
+        <p>Take Blackboard attendance. Announce: "This session is 30 minutes. We're going to wrap everything up, I'll leave you with the framework, and you're free."</p>
+      </div>
+    </div>
+    <div class="tl-item active">
+      <div class="tl-time">12:05</div>
+      <div class="tl-body">
+        <div class="tl-phase">Recap · 10 min</div>
+        <div class="tl-title">What you did today</div>
+        <p>Open Session 3 Wrap board, "What We Did" screen. Walk through the two sessions — distributive vs. integrative. Keep it brief. You're naming what they already lived, not teaching new content.</p>
+      </div>
+    </div>
+    <div class="tl-item active">
+      <div class="tl-time">12:15</div>
+      <div class="tl-body">
+        <div class="tl-phase">Framework · 10 min</div>
+        <div class="tl-title">The 3 Questions</div>
+        <p>Go to the "3 Questions" screen. Click through each question. Ask the class to connect each one to what happened in Sessions 1 and 2. Don't lecture — ask. "Where did this appear this morning?"</p>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time">12:25</div>
+      <div class="tl-body">
+        <div class="tl-phase">Done</div>
+        <div class="tl-title">Go to the Done screen — let them go</div>
+        <p>Click to "Done" screen. Read the three reminder lines. Say: "That's it. You negotiated today. You'll negotiate for the rest of your career. The only difference is now you know why things happen the way they do." Let them go.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHAT TO WATCH FOR -->
+  <div class="section-label">WHAT TO <span>WATCH FOR</span></div>
+
+  <div class="spoiler-box" onclick="this.classList.toggle('open')">
+    <div class="spoiler-header">
+      <div class="spoiler-title">Session 1 — What to observe during negotiation</div>
+      <div class="spoiler-arrow">▼</div>
+    </div>
+    <div class="spoiler-body">
+      <ul>
+        <li><strong>Who speaks first?</strong> In most pairs, the candidate opens. The one who anchors first and boldest usually lands higher.</li>
+        <li><strong>Who reveals their minimum?</strong> "I really can't go below €2,500" — this happens in roughly 30-40% of pairs. Note it for the debrief.</li>
+        <li><strong>Who caves at HR's first refusal?</strong> "The budget is fixed at €2,200" — some candidates fold immediately. Others push back. Contrast them in debrief.</li>
+        <li><strong>Non-monetary trades:</strong> Rare, but beautiful when they happen. A pair that discovers "€2,600 + 2 remote days" instead of fighting to €2,800 has found an integrative solution inside a distributive scenario.</li>
+        <li><strong>Emotional reactions:</strong> Watch for discomfort. Some students will literally be unable to name a high number. That discomfort is the lesson.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="spoiler-box" onclick="this.classList.toggle('open')">
+    <div class="spoiler-header">
+      <div class="spoiler-title">Session 2 — What to observe during negotiation</div>
+      <div class="spoiler-arrow">▼</div>
+    </div>
+    <div class="spoiler-body">
+      <ul>
+        <li><strong>The pivot moment:</strong> When does a pair stop bidding and start asking questions? The earlier, the more likely they find the win-win.</li>
+        <li><strong>Who asks "what are you going to do with it?":</strong> This is the magic question. If anyone asks it in the first 5 minutes, highlight them in the debrief.</li>
+        <li><strong>The bidding war:</strong> Most pairs escalate price rapidly. Some will hit their €60K ceiling, declare impasse, and still not discover the win-win.</li>
+        <li><strong>AI copy-paste behavior:</strong> Some students will show you their AI response. Note the advice it gave — "anchor first," "be firm on price" — for the debrief contrast.</li>
+        <li><strong>The "we can split it" discovery:</strong> When a pair finds it, watch their body language. There's usually a visible moment of surprise, then laughter. These are your debrief examples.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FAQ / TROUBLE -->
+  <div class="section-label">IF THINGS <span>GO WRONG</span></div>
+
+  <div class="red-box">
+    <h4>Students finish too fast (under 15 min)</h4>
+    <p>Tell early finishers to try again with swapped roles (candidate becomes HR). Or give them a reflection prompt: "Write 3 things you'd do differently if you could restart." This generates debrief material.</p>
+  </div>
+
+  <div class="red-box">
+    <h4>Almost nobody finds the win-win in Session 2</h4>
+    <p>This is actually fine — and historically common. The lower the win-win rate, the more powerful the reveal. Don't be worried if it's 10%. Say in the debrief: "30-40% find it in research settings with trained negotiators. You got X%. What does that tell you about how we negotiate by default?"</p>
+  </div>
+
+  <div class="red-box">
+    <h4>Students don't use AI during prep time</h4>
+    <p>Don't force it. Use it as a debrief question: "Who didn't use AI? How did that affect your preparation?" The contrast between those who prepped with AI and those who didn't is itself data.</p>
+  </div>
+
+  <div class="green-box">
+    <h4>The single most important thing for the debrief</h4>
+    <p>Don't explain what happened — make them explain it. For every concept (BATNA, anchoring, positions vs. interests), ask "who can give me an example of this from what happened this morning?" and wait. The best debrief answers are always student answers, not professor answers.</p>
+  </div>
+
+</div>
+
+<script>
+  // Spoiler boxes are handled by onclick on the element itself
+</script>
+</body>
+</html>

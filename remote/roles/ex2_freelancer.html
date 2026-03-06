@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercise 2 — Your Role</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0a0a12; --surface: #13131f; --border: #2a2a3e; --text: #e8e8f0; --muted: #6b6b8a; --accent: #ff4757; --blue: #3d84ff; --green: #2ed573; --gold: #ffd32a; --purple: #a55eea; --teal: #1abc9c; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; min-height: 100vh; padding: 0 0 60px 0; }
+  .confidential-bar { background: var(--accent); color: #fff; text-align: center; padding: 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; font-weight: 700; text-transform: uppercase; position: sticky; top: 0; z-index: 100; }
+  .hero { background: var(--surface); border-bottom: 1px solid var(--border); padding: 32px 24px 24px; text-align: center; }
+  .role-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+  .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 2px; line-height: 0.95; }
+  .hero h1 span { color: var(--teal); }
+  .hero-sub { font-size: 15px; color: var(--muted); margin-top: 12px; font-weight: 300; line-height: 1.5; }
+  .content { padding: 24px 20px; max-width: 600px; margin: 0 auto; }
+  .section { background: var(--surface); border: 1px solid var(--border); padding: 20px; margin-bottom: 14px; }
+  .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; display: block; }
+  .section ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .section ul li { font-size: 15px; line-height: 1.5; padding-left: 18px; position: relative; }
+  .section ul li::before { content: '→'; position: absolute; left: 0; color: var(--teal); }
+  .numbers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .number-box { background: var(--bg); border: 1px solid var(--border); padding: 16px; text-align: center; }
+  .number-box .num { font-family: 'Bebas Neue', sans-serif; font-size: 36px; display: block; line-height: 1; }
+  .number-box .lbl { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 4px; display: block; }
+  .number-box .note { font-size: 12px; color: var(--muted); margin-top: 6px; font-style: italic; }
+  .key-fact { background: rgba(26,188,156,0.08); border: 1px solid rgba(26,188,156,0.4); padding: 20px; margin-bottom: 14px; }
+  .key-fact-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--teal); margin-bottom: 12px; display: block; }
+  .key-fact p { font-size: 15px; line-height: 1.6; }
+  .key-fact strong { color: var(--teal); }
+  .danger-section { background: rgba(255,71,87,0.07); border: 1px solid rgba(255,71,87,0.4); padding: 20px; margin-bottom: 14px; }
+  .danger-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; display: block; }
+  .danger-section ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .danger-section ul li { font-size: 15px; line-height: 1.5; padding-left: 18px; position: relative; }
+  .danger-section ul li::before { content: '✕'; position: absolute; left: 0; color: var(--accent); }
+  .ai-section { background: rgba(61,132,255,0.06); border: 1px solid rgba(61,132,255,0.35); padding: 20px; margin-bottom: 14px; }
+  .ai-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; display: block; }
+  .ai-intro { font-size: 13px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+  .ai-prompt { background: var(--bg); border: 1px solid var(--border); padding: 14px; font-size: 13px; line-height: 1.7; color: var(--text); font-family: monospace; white-space: pre-wrap; border-left: 3px solid var(--blue); }
+  .copy-btn { margin-top: 10px; background: var(--blue); color: #fff; border: none; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 2px; padding: 10px 20px; cursor: pointer; width: 100%; }
+  .copy-btn:hover { background: #5a9fff; }
+  .submit-section { background: rgba(46,213,115,0.06); border: 1px solid rgba(46,213,115,0.3); padding: 20px; margin-bottom: 14px; }
+  .submit-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--green); margin-bottom: 12px; display: block; }
+  .submit-section ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .submit-section ul li { font-size: 14px; line-height: 1.5; padding-left: 20px; position: relative; color: var(--text); }
+  .submit-section ul li::before { content: '☐'; position: absolute; left: 0; color: var(--green); }
+  .rec-warning { background: rgba(255,107,53,0.1); border: 1px solid rgba(255,107,53,0.4); padding: 14px 18px; margin-bottom: 14px; font-size: 14px; color: #ff6b35; line-height: 1.5; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="confidential-bar">⚠ Confidential — Do not share this with your partner</div>
+
+<div class="hero">
+  <div class="role-tag">Exercise 2 · The Project · Your Role</div>
+  <h1>THE<br><span>DESIGNER</span></h1>
+  <div class="hero-sub">You're a freelance UX/UI designer.<br>A health startup wants to hire you.</div>
+</div>
+
+<div class="content">
+
+  <div class="rec-warning">
+    ⏺ Before you start negotiating: hit RECORD on your video call. You'll need the recording for your submission.
+  </div>
+
+  <div class="section">
+    <span class="section-label">Your Situation</span>
+    <ul>
+      <li>You're a freelance UX/UI designer with 2 years of experience, building a niche in health-tech apps</li>
+      <li>A startup called <strong>Kura</strong> wants you to redesign their health app — a 8–10 week project</li>
+      <li>Your standard market rate for a project this size would be €8,000</li>
+      <li>Your BATNA: you have two other interested clients, but they're e-commerce — less interesting for your portfolio</li>
+      <li>You'd like to close this soon — you have a gap in your schedule next month</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <span class="section-label">Your Numbers — Keep These Secret</span>
+    <div class="numbers-grid">
+      <div class="number-box">
+        <span class="num" style="color:var(--gold)">€8,000</span>
+        <span class="lbl">Your Anchor</span>
+        <span class="note">Standard market rate for this scope</span>
+      </div>
+      <div class="number-box">
+        <span class="num" style="color:var(--teal)">€5,500</span>
+        <span class="lbl">Your Minimum</span>
+        <span class="note">Below this, the e-commerce clients are better</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="key-fact">
+    <span class="key-fact-label">What You Really Care About</span>
+    <p>More than anything, you want to <strong>add a health app to your portfolio</strong>. You're building a specialization in health-tech and a real client project — especially one with a clean brand like Kura — is worth a lot to your career. You'd estimate this portfolio value at <strong>€800–1,000</strong>. A deal at €5,800 with full portfolio rights beats €6,500 with no portfolio rights, in your calculation.</p>
+  </div>
+
+  <div class="danger-section">
+    <span class="danger-label">⚠ Do Not Reveal</span>
+    <ul>
+      <li>That your minimum is €5,500</li>
+      <li>How much you want the portfolio rights — this is your hidden value, negotiate it strategically</li>
+      <li>That you have a schedule gap (suggests you're not in high demand right now)</li>
+    </ul>
+  </div>
+
+  <div class="ai-section">
+    <span class="ai-label">Use AI to Prepare — 10 Minutes</span>
+    <div class="ai-intro">Copy this prompt. Then ask a second question: <em>"What might the startup care about or not care about beyond the fee?"</em> — note if that changes your approach.</div>
+    <div class="ai-prompt" id="prompt-text">I'm a freelance UX/UI designer negotiating a fee for redesigning a health app startup's product. My standard rate for this scope is €8,000 but I'd accept as low as €5,500. I have other clients interested but prefer this one because it's in health-tech. The startup wants to negotiate the price down.
+
+Help me prepare:
+- What should my opening ask be and how do I justify it?
+- How do I hold my rate under pressure?
+- What do I do if they offer far below my minimum?
+- What should I avoid saying?</div>
+    <button class="copy-btn" onclick="copyPrompt()">COPY PROMPT →</button>
+  </div>
+
+  <div class="submit-section">
+    <span class="submit-label">Your Submission (both partners submit together)</span>
+    <ul>
+      <li>Recording of your negotiation call (unedited)</li>
+      <li>AI chat log — include the full conversation, especially if you asked "what might the other side care about beyond money?"</li>
+      <li>3 lines together: What was the final deal (price + any other terms)? Did you discover a win-win? If yes, when?</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+  function copyPrompt() {
+    navigator.clipboard.writeText(document.getElementById('prompt-text').textContent).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'COPIED ✓';
+      setTimeout(() => btn.textContent = 'COPY PROMPT →', 2000);
+    });
+  }
+</script>
+</body>
+</html>

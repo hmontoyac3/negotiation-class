@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SESSION 1 — The Offer | Negotiation</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a12; --surface: #13131f; --border: #2a2a3e; --text: #e8e8f0;
+    --muted: #6b6b8a; --accent: #ff4757; --blue: #3d84ff; --green: #2ed573;
+    --gold: #ffd32a; --purple: #a55eea;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .session-badge { background: var(--gold); color: var(--bg); font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; padding: 4px 12px; font-weight: 700; }
+  .session-title { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+  .topbar-right { display: flex; gap: 8px; }
+  .nav-btn { background: var(--border); color: var(--text); border: none; font-family: 'Barlow', sans-serif; font-size: 12px; padding: 6px 14px; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+  .nav-btn:hover, .nav-btn.active { background: var(--gold); color: var(--bg); }
+
+  .screen { display: none; flex: 1; overflow: hidden; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* INTRO */
+  .intro-screen { justify-content: center; align-items: center; position: relative; overflow: hidden; }
+  .intro-bg { position: absolute; font-family: 'Bebas Neue', sans-serif; font-size: 280px; color: rgba(255,255,255,0.02); top: 50%; left: 50%; transform: translate(-50%,-50%); white-space: nowrap; pointer-events: none; }
+  .intro-content { text-align: center; position: relative; z-index: 1; }
+  .intro-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; }
+  .intro-content h1 { font-family: 'Bebas Neue', sans-serif; font-size: 110px; line-height: 0.9; letter-spacing: 2px; }
+  .intro-content h1 span { color: var(--gold); }
+  .intro-content p { font-size: 20px; color: var(--muted); margin-top: 24px; font-weight: 300; }
+  .stat-row { display: flex; gap: 60px; justify-content: center; margin-top: 48px; }
+  .stat-item { text-align: center; }
+  .stat-item .num { font-family: 'Bebas Neue', sans-serif; font-size: 56px; color: var(--gold); display: block; line-height: 1; }
+  .stat-item .lbl { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+
+  /* SETUP */
+  .setup-screen { justify-content: center; align-items: center; padding: 40px; }
+  .setup-inner { max-width: 960px; width: 100%; }
+  .setup-title { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 2px; margin-bottom: 8px; }
+  .setup-sub { font-size: 15px; color: var(--muted); margin-bottom: 36px; }
+  .rules-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 36px; }
+  .rule-card { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--gold); padding: 20px; }
+  .rule-num { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: rgba(255,211,42,0.2); line-height: 1; }
+  .rule-card h3 { font-size: 15px; font-weight: 700; margin: 8px 0 6px; }
+  .rule-card p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .qr-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .qr-card { background: var(--surface); border: 1px solid var(--border); padding: 28px; text-align: center; }
+  .qr-role { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
+  .qr-role.candidate { color: var(--gold); }
+  .qr-role.hr { color: var(--purple); }
+  .qr-placeholder { width: 160px; height: 160px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; border: 2px dashed var(--border); flex-direction: column; gap: 8px; }
+  .qr-placeholder svg { width: 80px; height: 80px; opacity: 0.3; }
+  .qr-url { font-size: 12px; color: var(--muted); word-break: break-all; font-family: monospace; }
+  .qr-instruction { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .side-label { font-family: 'Bebas Neue', sans-serif; font-size: 24px; margin-top: 8px; }
+  .side-label.candidate { color: var(--gold); }
+  .side-label.hr { color: var(--purple); }
+
+  /* TIMER */
+  .timer-screen { justify-content: center; align-items: center; flex-direction: column; gap: 24px; }
+  .timer-label { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); }
+  .timer-display { font-family: 'Bebas Neue', sans-serif; font-size: 180px; line-height: 1; color: var(--gold); transition: color 0.3s; }
+  .timer-display.urgent { color: var(--accent); animation: pulse 0.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .timer-sub { font-size: 18px; color: var(--muted); text-align: center; max-width: 500px; line-height: 1.5; }
+  .timer-controls { display: flex; gap: 16px; }
+  .timer-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 2px; padding: 14px 40px; border: 2px solid; cursor: pointer; transition: all 0.2s; background: transparent; }
+  .timer-btn.start { border-color: var(--green); color: var(--green); }
+  .timer-btn.start:hover { background: var(--green); color: var(--bg); }
+  .timer-btn.reset { border-color: var(--muted); color: var(--muted); }
+  .timer-btn.reset:hover { border-color: var(--text); color: var(--text); }
+  .preset-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .timer-note { font-size: 13px; color: var(--muted); font-style: italic; text-align: center; }
+
+  /* DEBRIEF */
+  .debrief-screen { overflow-y: auto; padding: 40px 60px; flex-direction: column; }
+  .debrief-title { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 2px; margin-bottom: 8px; }
+  .debrief-title span { color: var(--gold); }
+  .debrief-sub { font-size: 15px; color: var(--muted); margin-bottom: 32px; max-width: 700px; line-height: 1.6; }
+  .debrief-level { margin-bottom: 32px; }
+  .level-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .level-label.l1 { color: var(--gold); }
+  .level-label.l2 { color: var(--blue); }
+  .level-label.l3 { color: var(--green); }
+  .debrief-q { padding: 12px 0; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: color 0.2s; display: flex; align-items: flex-start; gap: 10px; }
+  .debrief-q:hover { color: var(--gold); }
+  .debrief-q::before { content: '→'; color: var(--blue); flex-shrink: 0; }
+  .debrief-q:last-child { border-bottom: none; }
+
+  /* REVEAL */
+  .reveal-screen { overflow-y: auto; padding: 40px 60px; flex-direction: column; }
+  .reveal-title { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 2px; margin-bottom: 32px; }
+  .reveal-title span { color: var(--gold); }
+  .concepts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+  .concept-card { background: var(--surface); border: 1px solid var(--border); padding: 24px; cursor: pointer; transition: all 0.3s; border-left: 4px solid transparent; }
+  .concept-card:hover { border-left-color: var(--gold); }
+  .concept-card.revealed { border-left-color: var(--green); background: rgba(46,213,115,0.04); }
+  .concept-name { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .concept-def { font-size: 14px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+  .concept-reveal { font-size: 14px; line-height: 1.6; color: var(--text); max-height: 0; overflow: hidden; transition: max-height 0.4s; }
+  .concept-card.revealed .concept-reveal { max-height: 200px; }
+  .concept-card .reveal-hint { font-size: 12px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; }
+  .insight-box { background: rgba(255,211,42,0.06); border: 1px solid rgba(255,211,42,0.3); padding: 24px 28px; }
+  .insight-box h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+  .insight-box p { font-size: 15px; line-height: 1.7; color: var(--text); }
+  .insight-box strong { color: var(--gold); }
+
+  /* PROF NOTE */
+  .prof-note { background: rgba(61,132,255,0.07); border: 1px solid rgba(61,132,255,0.2); padding: 14px 20px; font-size: 13px; color: var(--blue); line-height: 1.6; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="session-badge">SESSION 1</div>
+    <div class="session-title">THE OFFER — DISTRIBUTIVE NEGOTIATION</div>
+  </div>
+  <div class="topbar-right">
+    <button class="nav-btn active" onclick="show('intro')">Intro</button>
+    <button class="nav-btn" onclick="show('setup')">Setup</button>
+    <button class="nav-btn" onclick="show('timer-prep')">AI Prep</button>
+    <button class="nav-btn" onclick="show('timer-neg')">Negotiate</button>
+    <button class="nav-btn" onclick="show('reveal')">Reveal</button>
+    <button class="nav-btn" onclick="show('debrief')">Debrief</button>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div class="screen intro-screen active" id="screen-intro">
+  <div class="intro-bg">NEGOTIATE</div>
+  <div class="intro-content">
+    <div class="intro-tag">Negotiation · Session 1 · 2026</div>
+    <h1>THE<br><span>OFFER</span></h1>
+    <p>You will face this conversation in less than 12 months.</p>
+    <div class="stat-row">
+      <div class="stat-item">
+        <span class="num">€361K</span>
+        <span class="lbl">Lifetime earnings difference — negotiate vs. not</span>
+      </div>
+      <div class="stat-item">
+        <span class="num">73%</span>
+        <span class="lbl">Of hiring managers expect candidates to negotiate</span>
+      </div>
+      <div class="stat-item">
+        <span class="num">1</span>
+        <span class="lbl">Conversation that changes everything</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div class="screen setup-screen" id="screen-setup">
+  <div class="setup-inner">
+    <div class="setup-title">HOW THIS WORKS</div>
+    <div class="setup-sub">Three rules. Then scan your role card. Then use AI. Then negotiate.</div>
+    <div class="rules-row">
+      <div class="rule-card">
+        <div class="rule-num">1</div>
+        <h3>One role per person</h3>
+        <p>Left side of the room: you're the <strong>Candidate</strong>. Right side: you're the <strong>HR Manager</strong>. You negotiate with the person next to you.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">2</div>
+        <h3>Your card is confidential</h3>
+        <p>Read your role card privately. Do <strong>not</strong> show your numbers to your partner. That information is yours to use — or to protect.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">3</div>
+        <h3>Live conversation only</h3>
+        <p>You negotiate by talking. No scripts, no reading from the screen. At the end: agree on a salary, or walk away with no deal.</p>
+      </div>
+    </div>
+    <div class="qr-row">
+      <div class="qr-card">
+        <div class="qr-role candidate">← Left side of the room</div>
+        <div class="qr-placeholder">
+          <svg viewBox="0 0 100 100" fill="currentColor"><rect x="10" y="10" width="30" height="30"/><rect x="60" y="10" width="30" height="30"/><rect x="10" y="60" width="30" height="30"/><rect x="50" y="55" width="10" height="10"/><rect x="65" y="55" width="10" height="10"/><rect x="80" y="55" width="10" height="10"/><rect x="50" y="70" width="10" height="10"/><rect x="65" y="70" width="10" height="10"/><rect x="80" y="70" width="10" height="10"/><rect x="50" y="85" width="10" height="10"/><rect x="80" y="85" width="10" height="10"/></svg>
+          <span style="font-size:11px;color:var(--muted);letter-spacing:1px;">ADD QR CODE</span>
+        </div>
+        <div class="side-label candidate">CANDIDATE</div>
+        <div class="qr-url">roles/s1_candidate.html</div>
+        <div class="qr-instruction">Scan to open your role card</div>
+      </div>
+      <div class="qr-card">
+        <div class="qr-role hr" style="text-align:right">Right side of the room →</div>
+        <div class="qr-placeholder">
+          <svg viewBox="0 0 100 100" fill="currentColor"><rect x="10" y="10" width="30" height="30"/><rect x="60" y="10" width="30" height="30"/><rect x="10" y="60" width="30" height="30"/><rect x="50" y="55" width="10" height="10"/><rect x="65" y="55" width="10" height="10"/><rect x="80" y="55" width="10" height="10"/><rect x="50" y="70" width="10" height="10"/><rect x="65" y="70" width="10" height="10"/><rect x="80" y="70" width="10" height="10"/><rect x="50" y="85" width="10" height="10"/><rect x="80" y="85" width="10" height="10"/></svg>
+          <span style="font-size:11px;color:var(--muted);letter-spacing:1px;">ADD QR CODE</span>
+        </div>
+        <div class="side-label hr">HR MANAGER</div>
+        <div class="qr-url">roles/s1_hr.html</div>
+        <div class="qr-instruction">Scan to open your role card</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TIMER: AI PREP -->
+<div class="screen timer-screen" id="screen-timer-prep">
+  <div class="timer-label" id="prep-label">AI PREPARATION TIME</div>
+  <div class="timer-display" id="prep-display">07:00</div>  
+  <div class="timer-sub">Read your role card. Copy the prompt. Ask AI. Build your strategy before you open your mouth.</div>
+  <div class="timer-controls">
+    <button class="timer-btn start" id="prep-start-btn" onclick="toggleTimer('prep')">START</button>
+    <button class="timer-btn reset" onclick="resetTimer('prep', 420)">RESET</button>
+  </div>
+  <div class="timer-note">⚠ When time is up — negotiate immediately. No more prep.</div>
+</div>
+
+<!-- TIMER: NEGOTIATE -->
+<div class="screen timer-screen" id="screen-timer-neg">
+  <div class="timer-label" id="neg-label">NEGOTIATION TIME</div>
+  <div class="timer-display" id="neg-display">20:00</div>  
+  <div class="timer-sub">Talk to your partner. Reach an agreement — or walk away. You must record your outcome when time is called.</div>
+  <div class="timer-controls">
+    <button class="timer-btn start" id="neg-start-btn" onclick="toggleTimer('neg')">START</button>
+    <button class="timer-btn reset" onclick="resetTimer('neg', 1200)">RESET</button>
+  </div>
+  <div class="prof-note" style="max-width:600px;">
+  </div>
+</div>
+
+<!-- REVEAL -->
+<div class="screen reveal-screen" id="screen-reveal">
+  <div class="reveal-title">WHAT JUST <span>HAPPENED</span></div>
+  <div class="concepts-grid">
+    <div class="concept-card" onclick="this.classList.toggle('revealed')">
+      <div class="concept-name">BATNA</div>
+      <div class="concept-def">Best Alternative to a Negotiated Agreement — your real source of power</div>
+      <div class="concept-reveal">
+        <strong>The candidate's BATNA:</strong> the consulting firm callback — uncertain, 6 weeks away. A weak BATNA.<br><br>
+        <strong>The HR manager's BATNA:</strong> the second candidate at €2,500 — weaker, but real.<br><br>
+        <strong>The lesson:</strong> Whoever had the stronger BATNA had more power. But most people never ask: "What happens if I walk away?" If you don't know your BATNA, you have no anchor for your decisions.
+      </div>
+      <div class="reveal-hint">↓ Click to reveal</div>
+    </div>
+    <div class="concept-card" onclick="this.classList.toggle('revealed')">
+      <div class="concept-name">ZOPA</div>
+      <div class="concept-def">Zone of Possible Agreement — the overlap where a deal can happen</div>
+      <div class="concept-reveal">
+        <strong>The ZOPA in this negotiation:</strong> €2,500 (candidate's minimum) to €2,900 (HR's ceiling) = a €400 window.<br><br>
+        If the candidate didn't know their minimum, they might accept €2,200. If HR didn't know their ceiling, they might stop at €2,400 when the candidate was still in the room.<br><br>
+        <strong>The lesson:</strong> A ZOPA exists — but only the people who prepared found it. No ZOPA = no deal. Know yours before you start.
+      </div>
+      <div class="reveal-hint">↓ Click to reveal</div>
+    </div>
+    <div class="concept-card" onclick="this.classList.toggle('revealed')">
+      <div class="concept-name">Anchoring</div>
+      <div class="concept-def">The first number said in a negotiation disproportionately shapes the final outcome</div>
+      <div class="concept-reveal">
+        <strong>Look at the class results:</strong> Candidates who opened at €3,200 landed significantly higher than those who opened at €2,700 — even though both had the same cards.<br><br>
+        The first number creates a gravitational pull. Counteroffers cluster around it. The other side adjusts from it, not from their own number.<br><br>
+        <strong>The lesson:</strong> Go first when you're prepared. Anchor boldly but justify it. "I was thinking €3,200, based on market rates for this role in Milan."
+      </div>
+      <div class="reveal-hint">↓ Click to reveal</div>
+    </div>
+    <div class="concept-card" onclick="this.classList.toggle('revealed')">
+      <div class="concept-name">Reservation Price</div>
+      <div class="concept-def">Your absolute walk-away point — never cross it, never reveal it</div>
+      <div class="concept-reveal">
+        <strong>The candidate's reservation price:</strong> €2,500. Below that, wait for the consulting firm.<br><br>
+        <strong>HR's reservation price:</strong> €2,900. Above that, their budget is broken.<br><br>
+        <strong>The most common mistake:</strong> Saying "I really can't go below €2,600" — which just moved your reservation price from €2,500 to €2,600 in the other person's mind. They'll push to exactly €2,600 and stop.<br><br>
+        <strong>The lesson:</strong> Know it. Don't cross it. Never say it.
+      </div>
+      <div class="reveal-hint">↓ Click to reveal</div>
+    </div>
+  </div>
+  <div class="insight-box">
+    <h3>The Key Insight</h3>
+    <p>Both sides had the same facts. The difference in outcomes came entirely from <strong>preparation</strong> (knowing your numbers) and <strong>anchoring</strong> (who moved first and by how much). AI helped you prepare — but you had to be the one to sit across from another human and execute under pressure.</p>
+  </div>
+</div>
+
+<!-- DEBRIEF -->
+<div class="screen debrief-screen" id="screen-debrief">
+  <div class="debrief-title">THE <span>DEBRIEF</span></div>
+  <div class="debrief-sub">Don't explain what happened — help them articulate it. Wait after each question. The best answers take 15 seconds to come. That silence is learning.</div>
+
+  <div class="debrief-level">
+    <div class="level-label l1">LEVEL 1 — What happened? (Facts from the room)</div>
+    <div class="debrief-q">Who made the first offer? How did it feel to be the one to go first?</div>
+    <div class="debrief-q">Who got a deal above €2,700? Below €2,500? Show of hands.</div>
+    <div class="debrief-q">Did anyone walk away without a deal? What made you decide that?</div>
+    <div class="debrief-q">Did anyone reveal a number they wish they hadn't?</div>
+  </div>
+
+  <div class="debrief-level">
+    <div class="level-label l2">LEVEL 2 — Why did it happen? (Analysis)</div>
+    <div class="debrief-q">What did your AI advice say? Did it help? What did it get wrong?</div>
+    <div class="debrief-q">Why does the first number have so much power? Where else in life does this happen?</div>
+    <div class="debrief-q">What question — if you had asked it — would have changed the negotiation completely?</div>
+    <div class="debrief-q">Who felt uncomfortable making a high first offer? Why? What did that discomfort cost you?</div>
+  </div>
+
+  <div class="debrief-level">
+    <div class="level-label l3">LEVEL 3 — So what? (The principle)</div>
+    <div class="debrief-q">You graduate in June. This conversation is happening in September. What do you do differently?</div>
+    <div class="debrief-q">Name one thing that would have been different if you had spent 20 more minutes preparing.</div>
+    <div class="debrief-q">The other person had confidential information you didn't know. In real life — how do you find out what you don't know?</div>
+  </div>
+
+  <div class="prof-note">
+    💡 <strong>Key concept to land before moving on:</strong> In a distributive negotiation, the deal happens inside the ZOPA — but only the person who prepared for it can find it. AI gave them a strategy. The live conversation required something else: composure, judgment, reading another human. That's the part that doesn't go away.
+  </div>
+</div>
+
+<script>
+  function show(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // Timer system — two independent timers
+  const timers = {
+    prep: { seconds: 420, original: 420, running: false, interval: null, display: 'prep-display', btn: 'prep-start-btn' },
+    neg: { seconds: 1200, original: 1200, running: false, interval: null, display: 'neg-display', btn: 'neg-start-btn' }
+  };
+
+  function fmt(s) {
+    return Math.floor(s/60).toString().padStart(2,'0') + ':' + (s%60).toString().padStart(2,'0');
+  }
+
+  function toggleTimer(id) {
+    const t = timers[id];
+    if (t.running) {
+      clearInterval(t.interval);
+      t.running = false;
+      document.getElementById(t.btn).textContent = 'RESUME';
+    } else {
+      t.running = true;
+      document.getElementById(t.btn).textContent = 'PAUSE';
+      t.interval = setInterval(() => {
+        t.seconds--;
+        const el = document.getElementById(t.display);
+        el.textContent = fmt(t.seconds);
+        if (t.seconds <= 30) el.classList.add('urgent');
+        else el.classList.remove('urgent');
+        if (t.seconds <= 0) {
+          clearInterval(t.interval);
+          t.running = false;
+          document.getElementById(t.btn).textContent = 'START';
+          el.textContent = 'TIME!';
+        }
+      }, 1000);
+    }
+  }
+
+  function resetTimer(id, secs) {
+    const t = timers[id];
+    clearInterval(t.interval);
+    t.running = false;
+    t.seconds = secs !== undefined ? secs : t.original;
+    t.original = t.seconds;
+    document.getElementById(t.btn).textContent = 'START';
+    document.getElementById(t.display).textContent = fmt(t.seconds);
+    document.getElementById(t.display).classList.remove('urgent');
+  }
+</script>
+</body>
+</html>

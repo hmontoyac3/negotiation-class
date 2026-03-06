@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SESSION 2 — The Rights | Negotiation</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a12; --surface: #13131f; --border: #2a2a3e; --text: #e8e8f0;
+    --muted: #6b6b8a; --accent: #ff4757; --blue: #3d84ff; --green: #2ed573;
+    --gold: #ffd32a; --purple: #a55eea; --orange: #ff6b35; --teal: #1abc9c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .session-badge { background: var(--blue); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; padding: 4px 12px; font-weight: 700; }
+  .session-title { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+  .topbar-right { display: flex; gap: 8px; }
+  .nav-btn { background: var(--border); color: var(--text); border: none; font-family: 'Barlow', sans-serif; font-size: 12px; padding: 6px 14px; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+  .nav-btn:hover, .nav-btn.active { background: var(--blue); color: #fff; }
+
+  .screen { display: none; flex: 1; overflow: hidden; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* INTRO */
+  .intro-screen { justify-content: center; align-items: center; position: relative; overflow: hidden; }
+  .intro-bg { position: absolute; font-family: 'Bebas Neue', sans-serif; font-size: 280px; color: rgba(255,255,255,0.02); top: 50%; left: 50%; transform: translate(-50%,-50%); white-space: nowrap; pointer-events: none; }
+  .intro-content { text-align: center; position: relative; z-index: 1; max-width: 800px; }
+  .intro-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--blue); text-transform: uppercase; margin-bottom: 16px; }
+  .intro-content h1 { font-family: 'Bebas Neue', sans-serif; font-size: 110px; line-height: 0.9; letter-spacing: 2px; }
+  .intro-content h1 span { color: var(--blue); }
+  .intro-content p { font-size: 20px; color: var(--muted); margin-top: 24px; font-weight: 300; line-height: 1.5; }
+  .intro-warning { margin-top: 32px; background: rgba(255,71,87,0.08); border: 1px solid rgba(255,71,87,0.3); padding: 16px 28px; font-size: 15px; color: var(--accent); }
+
+  /* SETUP */
+  .setup-screen { justify-content: center; align-items: center; padding: 40px; }
+  .setup-inner { max-width: 960px; width: 100%; }
+  .setup-title { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 2px; margin-bottom: 8px; }
+  .setup-sub { font-size: 15px; color: var(--muted); margin-bottom: 36px; }
+  .rules-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 36px; }
+  .rule-card { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--blue); padding: 20px; }
+  .rule-num { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: rgba(61,132,255,0.2); line-height: 1; }
+  .rule-card h3 { font-size: 15px; font-weight: 700; margin: 8px 0 6px; }
+  .rule-card p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .qr-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .qr-card { background: var(--surface); border: 1px solid var(--border); padding: 28px; text-align: center; }
+  .qr-role { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
+  .qr-role.podcast { color: var(--orange); }
+  .qr-role.youtube { color: var(--teal); }
+  .qr-placeholder { width: 160px; height: 160px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; border: 2px dashed var(--border); flex-direction: column; gap: 8px; }
+  .qr-placeholder svg { width: 80px; height: 80px; opacity: 0.3; }
+  .qr-url { font-size: 12px; color: var(--muted); word-break: break-all; font-family: monospace; }
+  .qr-instruction { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .side-label { font-family: 'Bebas Neue', sans-serif; font-size: 22px; margin-top: 8px; }
+  .side-label.podcast { color: var(--orange); }
+  .side-label.youtube { color: var(--teal); }
+
+  /* TIMER */
+  .timer-screen { justify-content: center; align-items: center; flex-direction: column; gap: 24px; }
+  .timer-label { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); }
+  .timer-display { font-family: 'Bebas Neue', sans-serif; font-size: 180px; line-height: 1; color: var(--blue); transition: color 0.3s; }
+  .timer-display.urgent { color: var(--accent); animation: pulse 0.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .timer-sub { font-size: 18px; color: var(--muted); text-align: center; max-width: 500px; line-height: 1.5; }
+  .timer-controls { display: flex; gap: 16px; }
+  .timer-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 2px; padding: 14px 40px; border: 2px solid; cursor: pointer; transition: all 0.2s; background: transparent; }
+  .timer-btn.start { border-color: var(--green); color: var(--green); }
+  .timer-btn.start:hover { background: var(--green); color: var(--bg); }
+  .timer-btn.reset { border-color: var(--muted); color: var(--muted); }
+  .timer-btn.reset:hover { border-color: var(--text); color: var(--text); }
+  .timer-note { font-size: 13px; color: var(--muted); font-style: italic; text-align: center; }
+
+  /* REVEAL */
+  .reveal-screen { justify-content: center; align-items: center; flex-direction: column; gap: 0; overflow-y: auto; padding: 40px 60px; }
+  .reveal-title { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 2px; margin-bottom: 24px; text-align: center; }
+  .reveal-title span { color: var(--green); }
+  .reveal-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 900px; margin-bottom: 24px; }
+  .role-reveal { background: var(--surface); border: 1px solid var(--border); padding: 24px; }
+  .role-reveal.podcast { border-top: 4px solid var(--orange); }
+  .role-reveal.youtube { border-top: 4px solid var(--teal); }
+  .role-reveal-name { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; }
+  .role-reveal-name.podcast { color: var(--orange); }
+  .role-reveal-name.youtube { color: var(--teal); }
+  .role-reveal p { font-size: 14px; line-height: 1.6; color: var(--text); }
+  .role-reveal strong { color: var(--gold); }
+  .win-win-box { background: rgba(46,213,115,0.07); border: 2px solid var(--green); padding: 28px 32px; max-width: 900px; width: 100%; }
+  .win-win-box h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+  .win-win-box p { font-size: 16px; line-height: 1.7; color: var(--text); }
+  .win-win-box strong { color: var(--green); }
+  .stat-reveal { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; max-width: 900px; width: 100%; margin-bottom: 20px; }
+  .stat-box { background: var(--surface); border: 1px solid var(--border); padding: 20px; text-align: center; }
+  .stat-box .n { font-family: 'Bebas Neue', sans-serif; font-size: 48px; line-height: 1; display: block; }
+  .stat-box .l { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 4px; display: block; }
+
+  /* DEBRIEF */
+  .debrief-screen { overflow-y: auto; padding: 40px 60px; flex-direction: column; }
+  .debrief-title { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 2px; margin-bottom: 8px; }
+  .debrief-title span { color: var(--blue); }
+  .debrief-sub { font-size: 15px; color: var(--muted); margin-bottom: 32px; max-width: 700px; line-height: 1.6; }
+  .debrief-level { margin-bottom: 32px; }
+  .level-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .level-label.l1 { color: var(--gold); }
+  .level-label.l2 { color: var(--blue); }
+  .level-label.l3 { color: var(--green); }
+  .level-label.ai { color: var(--purple); }
+  .debrief-q { padding: 12px 0; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: color 0.2s; display: flex; align-items: flex-start; gap: 10px; }
+  .debrief-q:hover { color: var(--blue); }
+  .debrief-q::before { content: '→'; color: var(--blue); flex-shrink: 0; }
+  .debrief-q:last-child { border-bottom: none; }
+  .prof-note { background: rgba(61,132,255,0.07); border: 1px solid rgba(61,132,255,0.2); padding: 14px 20px; font-size: 13px; color: var(--blue); line-height: 1.6; margin-top: 20px; }
+  .ai-insight { background: rgba(165,94,234,0.07); border: 1px solid rgba(165,94,234,0.3); padding: 20px 24px; margin-top: 20px; }
+  .ai-insight h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--purple); margin-bottom: 10px; }
+  .ai-insight p { font-size: 14px; line-height: 1.7; color: var(--text); }
+  .ai-insight strong { color: var(--purple); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="session-badge">SESSION 2</div>
+    <div class="session-title">THE RIGHTS — INTEGRATIVE NEGOTIATION</div>
+  </div>
+  <div class="topbar-right">
+    <button class="nav-btn active" onclick="show('intro')">Intro</button>
+    <button class="nav-btn" onclick="show('setup')">Setup</button>
+    <button class="nav-btn" onclick="show('timer-prep')">AI Prep</button>
+    <button class="nav-btn" onclick="show('timer-neg')">Negotiate</button>
+    <button class="nav-btn" onclick="show('reveal')">Reveal</button>
+    <button class="nav-btn" onclick="show('debrief')">Debrief</button>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div class="screen intro-screen active" id="screen-intro">
+  <div class="intro-bg">RIGHTS</div>
+  <div class="intro-content">
+    <div class="intro-tag">Negotiation · Session 2 · 2026</div>
+    <h1>THE<br><span>RIGHTS</span></h1>
+    <p>Two companies. One athlete. One interview.<br>Whoever pays more — wins.<br><br><em></em></p>
+    <div class="intro-warning">
+      Same scenario. Same rules as before. Except — something is different this time.
+    </div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div class="screen setup-screen" id="screen-setup">
+  <div class="setup-inner">
+    <div class="setup-title">HOW THIS WORKS</div>
+    <div class="setup-sub">Same format as Session 1. Read your card. Use AI. Negotiate. The only thing that changes is what you discover along the way.</div>
+    <div class="rules-row">
+      <div class="rule-card">
+        <div class="rule-num">1</div>
+        <h3>One role per person</h3>
+        <p>Left side of the room: you're <strong>PodcastOne</strong>. Right side: you're <strong>VisualSport</strong>. You negotiate with the person next to you.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">2</div>
+        <h3>Your card is confidential</h3>
+        <p>Read your role card privately. Your situation is yours. The other person does not know what you know — and you don't know what they know.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">3</div>
+        <h3>Reach an agreement</h3>
+        <p>You must decide: who gets the interview rights, and at what price. Or find another way. Record your outcome when time is up.</p>
+      </div>
+    </div>
+    <div class="qr-row">
+      <div class="qr-card">
+        <div class="qr-role podcast">← Left side of the room</div>
+        <div class="qr-placeholder">
+          <svg viewBox="0 0 100 100" fill="currentColor"><rect x="10" y="10" width="30" height="30"/><rect x="60" y="10" width="30" height="30"/><rect x="10" y="60" width="30" height="30"/><rect x="50" y="55" width="10" height="10"/><rect x="65" y="55" width="10" height="10"/><rect x="80" y="55" width="10" height="10"/><rect x="50" y="70" width="10" height="10"/><rect x="65" y="70" width="10" height="10"/><rect x="80" y="70" width="10" height="10"/><rect x="50" y="85" width="10" height="10"/><rect x="80" y="85" width="10" height="10"/></svg>
+          <span style="font-size:11px;color:var(--muted);letter-spacing:1px;">ADD QR CODE</span>
+        </div>
+        <div class="side-label podcast">PODCASTONE</div>
+        <div class="qr-url">roles/s2_podcast.html</div>
+        <div class="qr-instruction">Scan to open your role card</div>
+      </div>
+      <div class="qr-card">
+        <div class="qr-role youtube" style="text-align:right">Right side of the room →</div>
+        <div class="qr-placeholder">
+          <svg viewBox="0 0 100 100" fill="currentColor"><rect x="10" y="10" width="30" height="30"/><rect x="60" y="10" width="30" height="30"/><rect x="10" y="60" width="30" height="30"/><rect x="50" y="55" width="10" height="10"/><rect x="65" y="55" width="10" height="10"/><rect x="80" y="55" width="10" height="10"/><rect x="50" y="70" width="10" height="10"/><rect x="65" y="70" width="10" height="10"/><rect x="80" y="70" width="10" height="10"/><rect x="50" y="85" width="10" height="10"/><rect x="80" y="85" width="10" height="10"/></svg>
+          <span style="font-size:11px;color:var(--muted);letter-spacing:1px;">ADD QR CODE</span>
+        </div>
+        <div class="side-label youtube">VISUALSPORT</div>
+        <div class="qr-url">roles/s2_youtube.html</div>
+        <div class="qr-instruction">Scan to open your role card</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TIMER: AI PREP -->
+<div class="screen timer-screen" id="screen-timer-prep">
+  <div class="timer-label">AI PREPARATION TIME</div>
+  <div class="timer-display" id="prep-display">07:00</div>  
+  <div class="timer-sub">Read your card. Copy the prompt. Ask AI. This time, think about what the other side might need — not just how to beat them.</div>
+  <div class="timer-controls">
+    <button class="timer-btn start" id="prep-start-btn" onclick="toggleTimer('prep')">START</button>
+    <button class="timer-btn reset" onclick="resetTimer('prep', 420)">RESET</button>
+  </div>
+  <div class="timer-note">⚠ When time is up — negotiate immediately.</div>
+</div>
+
+<!-- TIMER: NEGOTIATE -->
+<div class="screen timer-screen" id="screen-timer-neg">
+  <div class="timer-label">NEGOTIATION TIME</div>
+  <div class="timer-display" id="neg-display">20:00</div>  
+  <div class="timer-sub">Reach an agreement with your partner. Record your outcome when time is called.</div>
+  <div class="timer-controls">
+    <button class="timer-btn start" id="neg-start-btn" onclick="toggleTimer('neg')">START</button>
+    <button class="timer-btn reset" onclick="resetTimer('neg', 1200)">RESET</button>
+  </div>
+  <div class="prof-note" style="max-width:600px;">
+    👁 <strong>Professor:</strong> Watch for the moment a pair stops bidding and starts asking questions. That's the pivot. Note which pairs discovered the win-win — they'll be your examples in the debrief. Also watch which pairs are still fighting at minute 20.
+  </div>
+</div>
+
+<!-- REVEAL -->
+<div class="screen reveal-screen" id="screen-reveal">
+  <div class="reveal-title">WHAT THEY <span>ACTUALLY NEEDED</span></div>
+
+  <div class="reveal-cards">
+    <div class="role-reveal podcast">
+      <div class="role-reveal-name podcast">PodcastOne</div>
+      <p>An <strong>audio-only</strong> network. They needed audio recording and distribution rights.<br><br>They had <strong>zero use for video footage</strong>. None. Their studio doesn't do video.</p>
+    </div>
+    <div class="role-reveal youtube">
+      <div class="role-reveal-name youtube">VisualSport</div>
+      <p>A <strong>video-only</strong> channel. They needed video footage and video distribution rights.<br><br>They had <strong>zero use for audio rights</strong>. None. Their team doesn't do podcasts.</p>
+    </div>
+  </div>
+
+  <div class="win-win-box">
+    <h3>The Win-Win That Was Available from Minute One</h3>
+    <p>PodcastOne + VisualSport could have <strong>split the rights</strong>: audio to one, video to the other. Both get exactly what they need. Marco Costa earns from both deals. Neither side spends anywhere near €60,000.<br><br>Most pairs never found this — because they were <strong>competing on position</strong> ("we want the rights") instead of exploring <strong>interest</strong> ("what exactly do you need them for?").<br><br>The single question that unlocks it: <strong>"What are you going to do with the interview?"</strong></p>
+  </div>
+
+  <div class="stat-reveal" style="margin-top:20px;">
+    <div class="stat-box">
+      <span class="n" style="color:var(--green)" id="stat-winwin">—</span>
+      <span class="l">Pairs who found the win-win</span>
+    </div>
+    <div class="stat-box">
+      <span class="n" style="color:var(--accent)" id="stat-battle">—</span>
+      <span class="l">Pairs who fought it out</span>
+    </div>
+    <div class="stat-box">
+      <span class="n" style="color:var(--muted)" id="stat-nodeal">—</span>
+      <span class="l">No deal reached</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:8px;">
+    <button onclick="adj('winwin',1)" style="background:var(--green);color:var(--bg);border:none;padding:8px 16px;cursor:pointer;font-family:'Barlow Condensed';letter-spacing:1px;">WIN-WIN +</button>
+    <button onclick="adj('winwin',-1)" style="background:var(--border);color:var(--text);border:none;padding:8px 16px;cursor:pointer;font-family:'Barlow Condensed';letter-spacing:1px;">−</button>
+    <button onclick="adj('battle',1)" style="background:var(--accent);color:#fff;border:none;padding:8px 16px;cursor:pointer;font-family:'Barlow Condensed';letter-spacing:1px;">BATTLE +</button>
+    <button onclick="adj('battle',-1)" style="background:var(--border);color:var(--text);border:none;padding:8px 16px;cursor:pointer;font-family:'Barlow Condensed';letter-spacing:1px;">−</button>
+    <button onclick="adj('nodeal',1)" style="background:var(--muted);color:#fff;border:none;padding:8px 16px;cursor:pointer;font-family:'Barlow Condensed';letter-spacing:1px;">NO DEAL +</button>
+    <button onclick="adj('nodeal',-1)" style="background:var(--border);color:var(--text);border:none;padding:8px 16px;cursor:pointer;font-family:'Barlow Condensed';letter-spacing:1px;">−</button>
+  </div>
+</div>
+
+<!-- DEBRIEF -->
+<div class="screen debrief-screen" id="screen-debrief">
+  <div class="debrief-title">THE <span>DEBRIEF</span></div>
+  <div class="debrief-sub">This one is more important than Session 1. What they just experienced is the fundamental insight of integrative negotiation — and most of them missed it. That's fine. That's the lesson.</div>
+
+  <div class="debrief-level">
+    <div class="level-label l1">LEVEL 1 — What happened? (Facts from the room)</div>
+    <div class="debrief-q">How many pairs split the rights? What made you think to ask about it?</div>
+    <div class="debrief-q">For those who didn't find it — at what point did you realize the win-win existed? How did it feel?</div>
+    <div class="debrief-q">What was the first question you asked your partner — and what did they say?</div>
+    <div class="debrief-q">Did anyone ask "what are you going to do with the interview?" At what minute?</div>
+  </div>
+
+  <div class="debrief-level">
+    <div class="level-label l2">LEVEL 2 — Why did it happen? (Analysis)</div>
+    <div class="debrief-q">Both cards said "exclusive rights." Why did that word make you assume the other side needed the same thing as you?</div>
+    <div class="debrief-q">What's the difference between a position and an interest? Use this scenario to explain it.</div>
+    <div class="debrief-q">Why did the AI not help you find the win-win? What would you have needed to ask it?</div>
+    <div class="debrief-q">The pairs who found the win-win — what did they do differently in the first 5 minutes?</div>
+  </div>
+
+  <div class="debrief-level">
+    <div class="level-label l3">LEVEL 3 — So what? (The principle)</div>
+    <div class="debrief-q">Name a real situation where two people are fighting over something — and it turns out their actual needs don't conflict at all.</div>
+    <div class="debrief-q">In your career, you'll negotiate budgets, resources, timelines, roles. How do you find out what the other side actually needs — not what they're asking for?</div>
+    <div class="debrief-q">Positions divide. Interests connect. Give me one example from today where you saw that happen.</div>
+  </div>
+
+  <div class="debrief-level">
+    <div class="level-label ai">THE AI META-LESSON</div>
+    <div class="debrief-q">Both cards had identical AI prompts. Both got identical advice: "anchor first, compete hard." Why?</div>
+    <div class="debrief-q">What would a BETTER AI prompt have looked like — one that actually led you to the win-win?</div>
+    <div class="debrief-q">What does this tell you about how to use AI in any negotiation? What's the question you should always ask it?</div>
+  </div>
+
+  <div class="ai-insight">
+    <h3>The AI Lesson to Land</h3>
+    <p>Both parties got the same AI advice because they asked the same question: <strong>"How do I win?"</strong><br><br>
+    AI reflects the frame you give it. If you ask it to help you compete, it helps you compete. If you ask <strong>"What might the other side actually need? What creative options exist?"</strong> — you get integrative thinking.<br><br>
+    The quality of your AI use depends entirely on the quality of your questions. And the quality of your questions depends on how well you already understand negotiation. <strong>The tool amplifies the thinking. It doesn't replace it.</strong></p>
+  </div>
+
+  <div class="prof-note">
+    💡 <strong>To close both sessions:</strong> In Session 1, you learned that preparation wins in competitive negotiation. In Session 2, you learned that asking "why" wins in collaborative negotiation. The real skill is knowing which situation you're in — and AI can help you prepare for both, if you ask it the right questions.
+  </div>
+</div>
+
+<script>
+  function show(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  const timers = {
+    prep: { seconds: 420, running: false, interval: null },
+    neg: { seconds: 1200, running: false, interval: null }
+  };
+  function fmt(s) { return Math.floor(s/60).toString().padStart(2,'0') + ':' + (s%60).toString().padStart(2,'0'); }
+  function toggleTimer(id) {
+    const t = timers[id];
+    const btn = document.getElementById(id + '-start-btn');
+    const disp = document.getElementById(id + '-display');
+    if (t.running) {
+      clearInterval(t.interval); t.running = false; btn.textContent = 'RESUME';
+    } else {
+      t.running = true; btn.textContent = 'PAUSE';
+      t.interval = setInterval(() => {
+        t.seconds--;
+        disp.textContent = fmt(t.seconds);
+        if (t.seconds <= 30) disp.classList.add('urgent'); else disp.classList.remove('urgent');
+        if (t.seconds <= 0) { clearInterval(t.interval); t.running = false; btn.textContent = 'START'; disp.textContent = 'TIME!'; }
+      }, 1000);
+    }
+  }
+  function resetTimer(id, secs) {
+    const t = timers[id];
+    clearInterval(t.interval); t.running = false; t.seconds = secs;
+    document.getElementById(id + '-start-btn').textContent = 'START';
+    document.getElementById(id + '-display').textContent = fmt(secs);
+    document.getElementById(id + '-display').classList.remove('urgent');
+  }
+
+  // Quick counters for reveal stats
+  const counts = { winwin: 0, battle: 0, nodeal: 0 };
+  function adj(key, delta) {
+    counts[key] = Math.max(0, counts[key] + delta);
+    document.getElementById('stat-' + key).textContent = counts[key] || '0';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Submit Result — Session 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<!--
+  FIREBASE SETUP (one-time, ~5 min):
+  1. Go to https://console.firebase.google.com
+  2. Create a new project (any name, e.g. "negotiation-class")
+  3. Click "Realtime Database" → Create database → Start in test mode
+  4. Click the gear icon → Project settings → Your apps → Add app → Web
+  5. Copy the firebaseConfig object and paste it below
+  6. In Realtime Database → Rules, set both .read and .write to true, Publish
+-->
+
+<script src="firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<style>
+  :root {
+    --bg: #050a14; --surface: #0d1526; --border: #1a2840;
+    --text: #e0eaff; --muted: #4a5f80; --gold: #ffd700;
+    --green: #00d68f; --red: #ff4757; --blue: #3d9bff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; padding: 32px 20px;
+  }
+
+  .badge {
+    font-family: 'Barlow', sans-serif; font-size: 11px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--gold); border: 1px solid rgba(255,215,0,0.3);
+    padding: 5px 14px; margin-bottom: 24px;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 3px;
+    line-height: 1; text-align: center; margin-bottom: 6px;
+  }
+  .sub { font-size: 14px; color: var(--muted); text-align: center; margin-bottom: 40px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    width: 100%; max-width: 420px; padding: 28px 24px;
+  }
+
+  .field { margin-bottom: 24px; }
+  .field label {
+    display: block; font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px;
+  }
+
+  select, input[type="number"] {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: 'Barlow', sans-serif; font-size: 22px;
+    font-weight: 600; padding: 14px 16px; outline: none; appearance: none;
+    transition: border-color 0.2s;
+  }
+  select:focus, input[type="number"]:focus { border-color: var(--gold); }
+
+  .outcome-btns { display: flex; gap: 10px; }
+  .outcome-btn {
+    flex: 1; border: 2px solid var(--border); background: transparent;
+    color: var(--text); font-family: 'Bebas Neue', sans-serif; font-size: 20px;
+    letter-spacing: 2px; padding: 18px 10px; cursor: pointer; transition: all 0.2s;
+    text-align: center;
+  }
+  .outcome-btn:hover { border-color: var(--text); }
+  .outcome-btn.selected-deal { border-color: var(--green); color: var(--green); background: rgba(0,214,143,0.08); }
+  .outcome-btn.selected-nodeal { border-color: var(--muted); color: var(--muted); background: rgba(74,95,128,0.15); }
+
+  #salary-field { transition: opacity 0.2s; }
+  #salary-field.hidden { opacity: 0.2; pointer-events: none; }
+
+  .submit-btn {
+    width: 100%; background: var(--gold); color: var(--bg);
+    border: none; font-family: 'Bebas Neue', sans-serif; font-size: 26px;
+    letter-spacing: 3px; padding: 18px; cursor: pointer; transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .submit-btn:hover { background: #ffe44d; }
+  .submit-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+  /* Confirmation screen */
+  #confirm-screen {
+    display: none; flex-direction: column; align-items: center;
+    text-align: center; max-width: 420px; width: 100%;
+  }
+  .check-icon {
+    font-size: 72px; margin-bottom: 20px; animation: pop 0.4s ease-out;
+  }
+  @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .confirm-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 3px;
+    color: var(--green); margin-bottom: 12px;
+  }
+  .confirm-detail {
+    font-size: 18px; color: var(--muted); line-height: 1.6; margin-bottom: 32px;
+  }
+  .confirm-note {
+    font-size: 13px; color: var(--muted); border: 1px solid var(--border);
+    padding: 14px 20px; line-height: 1.5;
+  }
+
+  /* Error */
+  .error-msg {
+    color: var(--red); font-size: 13px; margin-top: 8px; display: none;
+  }
+
+  /* Status dot */
+  .status {
+    position: fixed; top: 16px; right: 16px;
+    font-size: 11px; letter-spacing: 1px; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); }
+  .dot.connected { background: var(--green); }
+  .dot.error { background: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="status">
+  <div class="dot" id="status-dot"></div>
+  <span id="status-txt">connecting…</span>
+</div>
+
+<!-- FORM -->
+<div id="form-screen" style="display:flex;flex-direction:column;align-items:center;width:100%;">
+  <div class="badge">Session 1 · The Offer</div>
+  <h1>SUBMIT YOUR RESULT</h1>
+  <div class="sub">One person per pair submits.</div>
+
+  <div class="card">
+    <div class="field">
+      <label>Pair Number</label>
+      <select id="pair-select">
+        <option value="">— Select your pair number —</option>
+        <!-- filled by JS -->
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Outcome</label>
+      <div class="outcome-btns">
+        <button class="outcome-btn" id="btn-deal" onclick="selectOutcome('deal')">DEAL ✓</button>
+        <button class="outcome-btn" id="btn-nodeal" onclick="selectOutcome('nodeal')">NO DEAL ✕</button>
+      </div>
+    </div>
+
+    <div class="field" id="salary-field">
+      <label>Agreed Salary (€)</label>
+      <input type="number" id="salary-input" placeholder="e.g. 2700" min="1000" max="5000"
+        oninput="validateSalary()" onkeydown="if(event.key==='Enter') submit()">
+      <div class="error-msg" id="salary-error">Enter a salary between €1,000 and €5,000</div>
+    </div>
+
+    <div class="error-msg" id="pair-error" style="display:none;margin-bottom:12px;">Select your pair number</div>
+    <div class="error-msg" id="outcome-error" style="display:none;margin-bottom:12px;">Select an outcome first</div>
+    <div class="error-msg" id="taken-error" style="display:none;margin-bottom:12px;">This pair number already submitted. Select a different number or check with your partner.</div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submit()">SUBMIT</button>
+  </div>
+</div>
+
+<!-- CONFIRMATION -->
+<div id="confirm-screen">
+  <div class="check-icon">✅</div>
+  <div class="confirm-title">SUBMITTED!</div>
+  <div class="confirm-detail" id="confirm-detail">—</div>
+  <div class="confirm-note">Your result is now live on the professor's dashboard. You're done — wait for the reveal.</div>
+</div>
+
+<script>
+  // ─── FIREBASE CONFIG ─────────────────────────────────────────────────────────
+  // Paste your Firebase config here (from Firebase Console → Project settings → Your apps)
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Config is injected at deploy time via GitHub Actions secrets.
+  // For local dev, create firebase-config.js (see .gitignore).
+  firebase.initializeApp(window.firebaseConfig);
+  const db = firebase.database();
+  const ref = db.ref('s1');
+
+  // Connection status
+  db.ref('.info/connected').on('value', snap => {
+    const dot = document.getElementById('status-dot');
+    const txt = document.getElementById('status-txt');
+    if (snap.val()) {
+      dot.className = 'dot connected'; txt.textContent = 'connected';
+    } else {
+      dot.className = 'dot error'; txt.textContent = 'offline';
+    }
+  });
+
+  // Populate pair selector
+  const sel = document.getElementById('pair-select');
+  for (let i = 1; i <= 60; i++) {
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = 'Pair ' + i;
+    sel.appendChild(opt);
+  }
+
+  // Track already-submitted pairs
+  const submittedPairs = new Set();
+  ref.on('value', snap => {
+    submittedPairs.clear();
+    if (snap.val()) Object.keys(snap.val()).forEach(k => submittedPairs.add(k));
+  });
+
+  let outcome = null;
+
+  function selectOutcome(o) {
+    outcome = o;
+    document.getElementById('btn-deal').className = 'outcome-btn' + (o === 'deal' ? ' selected-deal' : '');
+    document.getElementById('btn-nodeal').className = 'outcome-btn' + (o === 'nodeal' ? ' selected-nodeal' : '');
+    document.getElementById('salary-field').className = 'field' + (o === 'nodeal' ? ' hidden' : '');
+    hideErrors();
+  }
+
+  function validateSalary() {
+    const v = parseInt(document.getElementById('salary-input').value);
+    const err = document.getElementById('salary-error');
+    err.style.display = (v && (v < 1000 || v > 5000)) ? 'block' : 'none';
+  }
+
+  function hideErrors() {
+    ['pair-error','outcome-error','salary-error','taken-error'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+  }
+
+  function submit() {
+    hideErrors();
+    const pair = document.getElementById('pair-select').value;
+    let valid = true;
+
+    if (!pair) { document.getElementById('pair-error').style.display = 'block'; valid = false; }
+    if (!outcome) { document.getElementById('outcome-error').style.display = 'block'; valid = false; }
+    if (submittedPairs.has(String(pair))) {
+      document.getElementById('taken-error').style.display = 'block'; valid = false;
+    }
+
+    let salary = null;
+    if (outcome === 'deal') {
+      salary = parseInt(document.getElementById('salary-input').value);
+      if (!salary || salary < 1000 || salary > 5000) {
+        document.getElementById('salary-error').style.display = 'block'; valid = false;
+      }
+    }
+
+    if (!valid) return;
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'SUBMITTING…';
+
+    const data = {
+      outcome: outcome,
+      salary: outcome === 'deal' ? salary : null,
+      submittedAt: firebase.database.ServerValue.TIMESTAMP
+    };
+
+    db.ref('s1/' + pair).set(data).then(() => {
+      document.getElementById('form-screen').style.display = 'none';
+      const screen = document.getElementById('confirm-screen');
+      screen.style.display = 'flex';
+      const detail = outcome === 'deal'
+        ? `Pair ${pair} · Deal at <strong style="color:var(--gold)">€${salary.toLocaleString()}</strong>`
+        : `Pair ${pair} · <strong style="color:var(--muted)">No deal</strong>`;
+      document.getElementById('confirm-detail').innerHTML = detail;
+    }).catch(err => {
+      btn.disabled = false;
+      btn.textContent = 'SUBMIT';
+      alert('Error submitting. Check your connection and try again.');
+      console.error(err);
+    });
+  }
+</script>
+</body>
+</html>

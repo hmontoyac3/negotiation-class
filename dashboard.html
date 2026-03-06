@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEGOTIATION — Professor Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #f4f0e8;
+    --cream: #ede8dc;
+    --red: #c0392b;
+    --gold: #b8860b;
+    --blue: #1a3a5c;
+    --mid: #6b6560;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    padding: 3rem 4rem 2.5rem;
+    gap: 2rem;
+    position: relative;
+    z-index: 2;
+  }
+  .header-bg {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 40px,
+      rgba(255,255,255,0.02) 40px,
+      rgba(255,255,255,0.02) 41px
+    );
+  }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  h1 span { color: var(--gold); font-style: italic; }
+  .header-meta {
+    text-align: right;
+  }
+  .header-meta p {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(244,240,232,0.5);
+    line-height: 1.8;
+  }
+  .tag {
+    display: inline-block;
+    background: var(--red);
+    color: white;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.7rem;
+    margin-top: 1rem;
+  }
+
+  /* TICKER */
+  .ticker {
+    background: var(--gold);
+    color: var(--ink);
+    padding: 0.5rem 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker-inner {
+    display: inline-block;
+    animation: ticker 25s linear infinite;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+  }
+  @keyframes ticker {
+    from { transform: translateX(100vw); }
+    to { transform: translateX(-100%); }
+  }
+
+  /* MAIN LAYOUT */
+  main { padding: 3rem 4rem; max-width: 1400px; margin: 0 auto; }
+
+  /* PHILOSOPHY STRIP */
+  .philosophy {
+    border-left: 4px solid var(--red);
+    padding: 1.5rem 2rem;
+    background: var(--cream);
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+  .philosophy .big-q {
+    font-family: 'Playfair Display', serif;
+    font-size: 6rem;
+    line-height: 1;
+    color: var(--red);
+    opacity: 0.3;
+    font-weight: 900;
+  }
+  .philosophy p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+  .philosophy strong { color: var(--red); }
+
+  /* WHAT TO SAY BOX */
+  .say-box {
+    background: var(--blue);
+    color: var(--paper);
+    padding: 2rem 2.5rem;
+    margin-bottom: 3rem;
+    position: relative;
+  }
+  .say-box::before {
+    content: '"';
+    position: absolute;
+    top: -0.5rem;
+    left: 1.5rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .say-box h3 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    padding-top: 2rem;
+  }
+  .say-box p { font-size: 1.05rem; line-height: 1.8; font-style: italic; }
+
+  /* SESSION CARDS */
+  .sessions-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .sessions-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--ink);
+    opacity: 0.2;
+  }
+
+  .sessions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .session-card {
+    background: white;
+    border-top: 4px solid var(--ink);
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .session-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+  .session-card.s1 { border-top-color: var(--red); }
+  .session-card.s2 { border-top-color: var(--blue); }
+  .session-card.s3 { border-top-color: var(--gold); }
+
+  .card-top {
+    padding: 1.5rem 1.5rem 1rem;
+  }
+  .session-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 0.5rem;
+  }
+  .session-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+  .session-card .duration {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--mid);
+  }
+
+  .card-exercises {
+    border-top: 1px solid rgba(0,0,0,0.08);
+    padding: 1rem 1.5rem;
+  }
+  .exercise-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed rgba(0,0,0,0.08);
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+  .exercise-item:last-child { border-bottom: none; }
+  .ex-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .s1 .ex-icon { background: rgba(192,57,43,0.1); color: var(--red); }
+  .s2 .ex-icon { background: rgba(26,58,92,0.1); color: var(--blue); }
+  .s3 .ex-icon { background: rgba(184,134,11,0.1); color: var(--gold); }
+
+  .card-footer {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.75rem 1.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .s1 .card-footer { background: var(--red); }
+  .s2 .card-footer { background: var(--blue); }
+  .s3 .card-footer { background: var(--gold); color: var(--ink); }
+
+  /* KEY CONCEPTS ROW */
+  .concepts-section { margin-bottom: 3rem; }
+  .concepts-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--ink);
+    border: 1px solid var(--ink);
+  }
+  .concept {
+    background: var(--paper);
+    padding: 1.5rem;
+  }
+  .concept-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 2rem;
+    font-weight: 300;
+    color: rgba(0,0,0,0.15);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  .concept h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+  }
+  .concept p {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--mid);
+  }
+
+  /* LOGISTICS */
+  .logistics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  .log-box {
+    background: var(--cream);
+    padding: 1.5rem;
+    border-bottom: 3px solid var(--ink);
+  }
+  .log-box h4 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    color: var(--mid);
+  }
+  .log-box ul { list-style: none; }
+  .log-box li {
+    padding: 0.4rem 0;
+    font-size: 0.9rem;
+    border-bottom: 1px dashed rgba(0,0,0,0.1);
+    display: flex;
+    gap: 0.75rem;
+  }
+  .log-box li:last-child { border-bottom: none; }
+  .log-box li::before {
+    content: '→';
+    color: var(--red);
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  /* BOTTOM QUOTE */
+  .bottom-quote {
+    border: 1px solid rgba(0,0,0,0.15);
+    padding: 2.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+  .bottom-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    line-height: 1.6;
+    max-width: 700px;
+    margin: 0 auto 1rem;
+  }
+  .bottom-quote cite {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--mid);
+    letter-spacing: 0.1em;
+  }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--mid);
+    letter-spacing: 0.1em;
+    border-top: 1px solid rgba(0,0,0,0.1);
+  }
+
+  @media (max-width: 900px) {
+    main { padding: 2rem; }
+    .header-inner { padding: 2rem; }
+    .sessions-grid { grid-template-columns: 1fr; }
+    .concepts-grid { grid-template-columns: 1fr 1fr; }
+    .logistics { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-bg"></div>
+  <div class="header-inner">
+    <div>
+      <div class="eyebrow">Professor Command Center · 2026 Edition</div>
+      <h1>The Art of<br><span>Negotiation</span></h1>
+      <div class="tag">Leadership Seminar</div>
+    </div>
+    <div class="header-meta">
+      <p>3 Sessions · ~5 hours total</p>
+      <p>120 Students</p>
+      <p>80% Exercises / 20% Theory</p>
+      <p>Updated from SDA Bocconi Classic</p>
+    </div>
+  </div>
+</header>
+
+<div class="ticker">
+  <span class="ticker-inner">
+    ★ NEGOTIATION IS THE #4 SKILL EMPLOYERS LOOK FOR IN GRADUATES &nbsp;&nbsp; ★ &nbsp;&nbsp; THE PERSON WHO NEGOTIATES THEIR FIRST SALARY EARNS ~$361K MORE OVER A LIFETIME &nbsp;&nbsp; ★ &nbsp;&nbsp; 79% OF PRICE VARIATION BETWEEN FIRMS = BARGAINING SKILL DIFFERENCES &nbsp;&nbsp; ★ &nbsp;&nbsp; EVERY LEADER NEGOTIATES DAILY — BUDGET, PEOPLE, STRATEGY, TIME &nbsp;&nbsp; ★ &nbsp;&nbsp; IT IS A LEARNED SKILL. YOU CAN GET BETTER. THAT'S WHY WE'RE HERE. &nbsp;&nbsp;&nbsp;&nbsp;
+  </span>
+</div>
+
+<main>
+
+  <div class="philosophy">
+    <div class="big-q">"</div>
+    <p>You were not born knowing how to negotiate. You were born with the capacity to learn. <strong>This course is your first real practice.</strong> Not theory. Not slides you'll forget. Three sessions where you'll feel the pressure, make mistakes, reflect, and leave with a mental framework that will serve you for the rest of your career — whether you run a company, a government, or your own life.</p>
+  </div>
+
+  <div class="say-box">
+    <h3>What the Professor Says — Opening 3 Minutes</h3>
+    <p>
+      "I'm going to ask you a question. Think of the last time you didn't get something you wanted — a grade you deserved, a job offer that wasn't enough, a decision made without you. How many of those situations could have gone differently if you had known how to negotiate? 
+      <br><br>
+      Negotiation is not arguing. It's not manipulation. It is the fundamental skill of getting two or more people with different interests to find a path forward. CEOs do it. Presidents do it. You do it every day without realizing it. 
+      <br><br>
+      In the next two-and-a-bit sessions, you will do three real negotiations. You will feel uncomfortable. That discomfort is the learning."
+    </p>
+  </div>
+
+  <div class="sessions-title">Three Sessions · Full Course Map</div>
+
+  <div class="sessions-grid">
+
+    <a href="session1.html" class="session-card s1">
+      <div class="card-top">
+        <div class="session-num">Session 01 · ~120 min</div>
+        <h2>Distributive Bargaining: The Battle for Value</h2>
+        <div class="duration">⏱ Full Session · High Energy</div>
+      </div>
+      <div class="card-exercises">
+        <div class="exercise-item">
+          <span class="ex-icon">W</span>
+          <span><strong>Why it matters</strong> — The $361K salary story. Stent pricing. Why leaders lose money every day.</span>
+        </div>
+        <div class="exercise-item">
+          <span class="ex-icon">T</span>
+          <span><strong>Theory Burst (15 min)</strong> — BATNA, ZOPA, Anchoring, Reservation Price. The 4 concepts you can't live without.</span>
+        </div>
+        <div class="exercise-item">
+          <span class="ex-icon">E1</span>
+          <span><strong>Exercise: Appleton vs. Baker</strong> — Land sale negotiation in pairs. Price + conditions. Record first offer, counter, final deal.</span>
+        </div>
+        <div class="exercise-item">
+          <span class="ex-icon">D</span>
+          <span><strong>Live Debrief</strong> — Class scoreboard. Anchoring revealed. What actually happened and why.</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span>OPEN SESSION 1</span>
+        <span>→</span>
+      </div>
+    </a>
+
+    <a href="session2.html" class="session-card s2">
+      <div class="card-top">
+        <div class="session-num">Session 02 · ~120 min</div>
+        <h2>Integrative Negotiation: Creating Value Together</h2>
+        <div class="duration">⏱ Full Session · The Real Skill</div>
+      </div>
+      <div class="card-exercises">
+        <div class="exercise-item">
+          <span class="ex-icon">T</span>
+          <span><strong>Theory Burst (10 min)</strong> — Positions vs. Interests. The Sinai Peninsula story. Win-win is real.</span>
+        </div>
+        <div class="exercise-item">
+          <span class="ex-icon">E2</span>
+          <span><strong>Exercise: Ugli Oranges</strong> — Jones vs. Roland. The trick: both need different parts. Will they talk?</span>
+        </div>
+        <div class="exercise-item">
+          <span class="ex-icon">D</span>
+          <span><strong>Debrief</strong> — Who found the win-win? Who went to war? Why?</span>
+        </div>
+        <div class="exercise-item">
+          <span class="ex-icon">E3</span>
+          <span><strong>Exercise: Beta University</strong> — Multi-issue, multi-party. Groups of 5. Points system. Real complexity.</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span>OPEN SESSION 2</span>
+        <span>→</span>
+      </div>
+    </a>
+
+    <a href="session3.html" class="session-card s3">
+      <div class="card-top">
+        <div class="session-num">Session 03 · ~60 min</div>
+        <h2>The AI Era: What Changes, What Doesn't</h2>
+        <div class="duration">⏱ Short & Sharp · High Impact Closing</div>
+      </div>
+      <div class="card-exercises">
+        <div class="exercise-item">
+          <span class="ex-icon">A</span>
+          <span><strong>AI + Negotiation demo</strong> — Live: ask Claude to help you prepare for a negotiation. What does it give you? What's missing?</span>
+        </div>
+        <div class="exercise-item">
+          <span class="ex-icon">R</span>
+          <span><strong>Real-world rapid fire</strong> — 4 scenarios, 4 minutes each. What would you do? Class votes live.</span>
+        </div>
+        <div class="exercise-item">
+          <span class="ex-icon">F</span>
+          <span><strong>The Framework</strong> — One page. Seven principles. Their cheat sheet for life.</span>
+        </div>
+        <div class="exercise-item">
+          <span class="ex-icon">★</span>
+          <span><strong>Closing</strong> — The one thing they must remember. The 3 questions to ask in every negotiation.</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span>OPEN SESSION 3</span>
+        <span>→</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- KEY CONCEPTS -->
+  <div class="concepts-section">
+    <div class="sessions-title">Four Concepts That Run Everything</div>
+    <div class="concepts-grid">
+      <div class="concept">
+        <span class="concept-num">01</span>
+        <h4>BATNA</h4>
+        <p>Best Alternative to Negotiated Agreement. Your walk-away option. Your real source of power. Never negotiate without knowing yours — and theirs.</p>
+      </div>
+      <div class="concept">
+        <span class="concept-num">02</span>
+        <h4>ZOPA</h4>
+        <p>Zone of Possible Agreement. The overlap between what you'll accept and what they'll offer. If there's no ZOPA, there's no deal — move on.</p>
+      </div>
+      <div class="concept">
+        <span class="concept-num">03</span>
+        <h4>Anchoring</h4>
+        <p>The first number stated disproportionately influences the final outcome. Go first when you have good information. Make it bold. Set the range.</p>
+      </div>
+      <div class="concept">
+        <span class="concept-num">04</span>
+        <h4>Positions vs. Interests</h4>
+        <p>Position = what you say you want. Interest = why you want it. The path to win-win is always through interests, never through positions.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGISTICS -->
+  <div class="sessions-title">Classroom Logistics for 120 Students</div>
+  <div class="logistics">
+    <div class="log-box">
+      <h4>Before Each Session</h4>
+      <ul>
+        <li>Pre-assign pairs (random or strategic) for Ex.1 and Ex.2 before class. Post list on screen.</li>
+        <li>Print or share PDFs of role cards digitally — each student only sees their own role</li>
+        <li>For Beta University: pre-form groups of 5–6 (20–24 groups). Assign roles per group.</li>
+        <li>Have this dashboard open on the projector at all times for navigation</li>
+        <li>Keep a visible timer on screen during every exercise</li>
+      </ul>
+    </div>
+    <div class="log-box">
+      <h4>Managing 120 Students</h4>
+      <ul>
+        <li>Use a shared Google Form or Mentimeter for real-time data collection during debriefs</li>
+        <li>Appleton/Baker: 60 pairs negotiate simultaneously — takes 20–25 min max</li>
+        <li>Call 3–4 couples to report results to class (first offer, counter, final) — 10 min debrief</li>
+        <li>Non-participating students: flag names. Remind at start: participation = attendance grade.</li>
+        <li>Ugli Oranges: most powerful when students don't realize they can share. Do NOT hint.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="bottom-quote">
+    <p>"The most dangerous negotiating myth: that the best negotiators are born, not made. Every skill in this room was learned. Start learning today."</p>
+    <cite>— Adapted from Thompson, The Mind and Heart of the Negotiator</cite>
+  </div>
+
+</main>
+
+<footer>
+  NEGOTIATION LEADERSHIP SEMINAR · 2026 EDITION · PROFESSOR COMMAND CENTER · SESSIONS: <a href="session1.html" style="color:var(--red)">S1</a> · <a href="session2.html" style="color:var(--blue)">S2</a> · <a href="session3.html" style="color:var(--gold)">S3</a>
+</footer>
+
+</body>
+</html>

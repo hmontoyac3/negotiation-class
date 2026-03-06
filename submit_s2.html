@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Submit Result — Session 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<!-- Same Firebase project as submit_s1.html -->
+<script src="firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<style>
+  :root {
+    --bg: #050a14; --surface: #0d1526; --border: #1a2840;
+    --text: #e0eaff; --muted: #4a5f80; --gold: #ffd700;
+    --green: #00d68f; --red: #ff4757; --blue: #3d9bff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; padding: 32px 20px;
+  }
+
+  .badge {
+    font-family: 'Barlow', sans-serif; font-size: 11px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--blue); border: 1px solid rgba(61,155,255,0.3);
+    padding: 5px 14px; margin-bottom: 24px;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 3px;
+    line-height: 1; text-align: center; margin-bottom: 6px;
+  }
+  .sub { font-size: 14px; color: var(--muted); text-align: center; margin-bottom: 40px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    width: 100%; max-width: 420px; padding: 28px 24px;
+  }
+
+  .field { margin-bottom: 24px; }
+  .field label {
+    display: block; font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px;
+  }
+
+  select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: 'Barlow', sans-serif; font-size: 22px;
+    font-weight: 600; padding: 14px 16px; outline: none; appearance: none;
+    transition: border-color 0.2s;
+  }
+  select:focus { border-color: var(--blue); }
+
+  .outcome-options { display: flex; flex-direction: column; gap: 10px; }
+  .outcome-option {
+    border: 2px solid var(--border); background: transparent;
+    color: var(--text); padding: 18px 20px; cursor: pointer; transition: all 0.2s;
+    text-align: left; width: 100%;
+  }
+  .outcome-option .opt-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px;
+    display: block; margin-bottom: 4px;
+  }
+  .outcome-option .opt-desc {
+    font-size: 12px; color: var(--muted); line-height: 1.4;
+  }
+  .outcome-option:hover { border-color: var(--text); }
+  .outcome-option.sel-split { border-color: var(--green); background: rgba(0,214,143,0.08); }
+  .outcome-option.sel-split .opt-title { color: var(--green); }
+  .outcome-option.sel-one { border-color: var(--red); background: rgba(255,71,87,0.06); }
+  .outcome-option.sel-one .opt-title { color: var(--red); }
+  .outcome-option.sel-nodeal { border-color: var(--muted); background: rgba(74,95,128,0.12); }
+  .outcome-option.sel-nodeal .opt-title { color: var(--muted); }
+
+  .submit-btn {
+    width: 100%; background: var(--blue); color: #fff;
+    border: none; font-family: 'Bebas Neue', sans-serif; font-size: 26px;
+    letter-spacing: 3px; padding: 18px; cursor: pointer; transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .submit-btn:hover { background: #5baeff; }
+  .submit-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+  .error-msg { color: var(--red); font-size: 13px; margin-bottom: 12px; display: none; }
+
+  /* Confirmation */
+  #confirm-screen {
+    display: none; flex-direction: column; align-items: center;
+    text-align: center; max-width: 420px; width: 100%;
+  }
+  .check-icon { font-size: 72px; margin-bottom: 20px; animation: pop 0.4s ease-out; }
+  @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .confirm-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 3px;
+    color: var(--green); margin-bottom: 12px;
+  }
+  .confirm-detail { font-size: 18px; color: var(--muted); line-height: 1.6; margin-bottom: 32px; }
+  .confirm-note {
+    font-size: 13px; color: var(--muted); border: 1px solid var(--border);
+    padding: 14px 20px; line-height: 1.5;
+  }
+
+  .status {
+    position: fixed; top: 16px; right: 16px;
+    font-size: 11px; letter-spacing: 1px; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); }
+  .dot.connected { background: var(--green); }
+  .dot.error { background: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="status">
+  <div class="dot" id="status-dot"></div>
+  <span id="status-txt">connecting…</span>
+</div>
+
+<!-- FORM -->
+<div id="form-screen" style="display:flex;flex-direction:column;align-items:center;width:100%;">
+  <div class="badge">Session 2 · The Rights</div>
+  <h1>SUBMIT YOUR RESULT</h1>
+  <div class="sub">One person per pair submits.</div>
+
+  <div class="card">
+    <div class="field">
+      <label>Pair Number</label>
+      <select id="pair-select">
+        <option value="">— Select your pair number —</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>What happened?</label>
+      <div class="outcome-options">
+        <button class="outcome-option" id="opt-split" onclick="selectOutcome('split')">
+          <span class="opt-title">Split the Rights</span>
+          <span class="opt-desc">Audio to one side, video to the other. Both got what they needed.</span>
+        </button>
+        <button class="outcome-option" id="opt-one" onclick="selectOutcome('one')">
+          <span class="opt-title">One Side Won</span>
+          <span class="opt-desc">Competed on price. One side got the full interview, the other didn't.</span>
+        </button>
+        <button class="outcome-option" id="opt-nodeal" onclick="selectOutcome('nodeal')">
+          <span class="opt-title">No Deal</span>
+          <span class="opt-desc">Couldn't reach an agreement. Both walked away.</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="error-msg" id="pair-error">Select your pair number</div>
+    <div class="error-msg" id="outcome-error">Select an outcome</div>
+    <div class="error-msg" id="taken-error">This pair number already submitted. Select a different number or check with your partner.</div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submit()">SUBMIT</button>
+  </div>
+</div>
+
+<!-- CONFIRMATION -->
+<div id="confirm-screen">
+  <div class="check-icon">✅</div>
+  <div class="confirm-title">SUBMITTED!</div>
+  <div class="confirm-detail" id="confirm-detail">—</div>
+  <div class="confirm-note">Your result is now live on the professor's dashboard. Wait for the reveal.</div>
+</div>
+
+<script>
+  // ─── FIREBASE CONFIG ─────────────────────────────────────────────────────────
+  // Same config as submit_s1.html — paste from Firebase Console
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Config is injected at deploy time via GitHub Actions secrets.
+  firebase.initializeApp(window.firebaseConfig);
+  const db = firebase.database();
+
+  db.ref('.info/connected').on('value', snap => {
+    const dot = document.getElementById('status-dot');
+    const txt = document.getElementById('status-txt');
+    if (snap.val()) {
+      dot.className = 'dot connected'; txt.textContent = 'connected';
+    } else {
+      dot.className = 'dot error'; txt.textContent = 'offline';
+    }
+  });
+
+  const sel = document.getElementById('pair-select');
+  for (let i = 1; i <= 60; i++) {
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = 'Pair ' + i;
+    sel.appendChild(opt);
+  }
+
+  const submittedPairs = new Set();
+  db.ref('s2').on('value', snap => {
+    submittedPairs.clear();
+    if (snap.val()) Object.keys(snap.val()).forEach(k => submittedPairs.add(k));
+  });
+
+  let outcome = null;
+
+  const outcomeLabels = {
+    split: { sel: 'sel-split', text: 'Split the Rights' },
+    one:   { sel: 'sel-one',   text: 'One Side Won' },
+    nodeal:{ sel: 'sel-nodeal',text: 'No Deal' }
+  };
+
+  function selectOutcome(o) {
+    outcome = o;
+    ['split','one','nodeal'].forEach(k => {
+      document.getElementById('opt-' + k).className =
+        'outcome-option' + (k === o ? ' sel-' + k : '');
+    });
+    hideErrors();
+  }
+
+  function hideErrors() {
+    ['pair-error','outcome-error','taken-error'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+  }
+
+  function submit() {
+    hideErrors();
+    const pair = document.getElementById('pair-select').value;
+    let valid = true;
+
+    if (!pair) { document.getElementById('pair-error').style.display = 'block'; valid = false; }
+    if (!outcome) { document.getElementById('outcome-error').style.display = 'block'; valid = false; }
+    if (submittedPairs.has(String(pair))) {
+      document.getElementById('taken-error').style.display = 'block'; valid = false;
+    }
+    if (!valid) return;
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'SUBMITTING…';
+
+    db.ref('s2/' + pair).set({
+      outcome: outcome,
+      submittedAt: firebase.database.ServerValue.TIMESTAMP
+    }).then(() => {
+      document.getElementById('form-screen').style.display = 'none';
+      const screen = document.getElementById('confirm-screen');
+      screen.style.display = 'flex';
+      document.getElementById('confirm-detail').innerHTML =
+        `Pair ${pair} · <strong>${outcomeLabels[outcome].text}</strong>`;
+    }).catch(err => {
+      btn.disabled = false;
+      btn.textContent = 'SUBMIT';
+      alert('Error submitting. Check your connection and try again.');
+      console.error(err);
+    });
+  }
+</script>
+</body>
+</html>

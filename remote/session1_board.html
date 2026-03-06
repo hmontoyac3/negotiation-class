@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remote Session 1 — The Flat</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0a0a12; --surface: #13131f; --border: #2a2a3e; --text: #e8e8f0; --muted: #6b6b8a; --accent: #ff4757; --blue: #3d84ff; --green: #2ed573; --gold: #ffd32a; --purple: #a55eea; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .badge { background: var(--gold); color: var(--bg); font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; padding: 4px 12px; font-weight: 700; }
+  .title { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 1px; }
+  .nav { display: flex; gap: 8px; }
+  .nav-btn { background: var(--border); color: var(--text); border: none; font-family: 'Barlow', sans-serif; font-size: 12px; padding: 6px 14px; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+  .nav-btn:hover, .nav-btn.active { background: var(--gold); color: var(--bg); }
+  .screen { display: none; flex: 1; overflow-y: auto; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* SHARED COMPONENTS */
+  .center-screen { justify-content: center; align-items: center; }
+  .pad { padding: 40px 60px; }
+  .big-title { font-family: 'Bebas Neue', sans-serif; font-size: 64px; letter-spacing: 2px; margin-bottom: 12px; }
+  .big-title span { color: var(--gold); }
+  .sub { font-size: 16px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .card { background: var(--surface); border: 1px solid var(--border); padding: 20px; }
+  .card-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: block; }
+  .card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .card p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .card p strong { color: var(--text); }
+  .gold-border { border-top: 3px solid var(--gold); }
+  .blue-border { border-top: 3px solid var(--blue); }
+  .green-border { border-top: 3px solid var(--green); }
+  .highlight { background: rgba(255,211,42,0.06); border: 1px solid rgba(255,211,42,0.3); padding: 18px 22px; margin-bottom: 20px; font-size: 15px; line-height: 1.7; }
+  .highlight strong { color: var(--gold); }
+  .info-box { background: rgba(61,132,255,0.07); border: 1px solid rgba(61,132,255,0.25); padding: 16px 20px; font-size: 14px; color: var(--blue); line-height: 1.6; margin-top: 16px; }
+  .danger-box { background: rgba(255,71,87,0.07); border: 1px solid rgba(255,71,87,0.3); padding: 16px 20px; font-size: 14px; color: var(--accent); line-height: 1.6; margin-top: 16px; }
+
+  /* TIMER */
+  .timer-screen { flex-direction: column; gap: 20px; }
+  .timer-label { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); }
+  .timer-display { font-family: 'Bebas Neue', sans-serif; font-size: 180px; line-height: 1; color: var(--gold); transition: color 0.3s; }
+  .timer-display.urgent { color: var(--accent); animation: pulse 0.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.5} }
+  .timer-sub { font-size: 17px; color: var(--muted); text-align: center; max-width: 500px; line-height: 1.5; }
+  .timer-controls { display: flex; gap: 16px; }
+  .timer-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 2px; padding: 14px 40px; border: 2px solid; cursor: pointer; transition: all 0.2s; background: transparent; }
+  .timer-btn.go { border-color: var(--green); color: var(--green); }
+  .timer-btn.go:hover { background: var(--green); color: var(--bg); }
+  .timer-btn.rst { border-color: var(--muted); color: var(--muted); }
+  .timer-btn.rst:hover { border-color: var(--text); color: var(--text); }
+
+  /* LINK CARDS */
+  .link-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; text-align: center; }
+  .link-role { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; }
+  .link-url { font-family: monospace; font-size: 13px; color: var(--muted); word-break: break-all; margin-bottom: 10px; background: var(--bg); padding: 8px 12px; display: block; border: 1px solid var(--border); }
+  .copy-link-btn { background: var(--border); color: var(--text); border: none; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 1px; padding: 7px 16px; cursor: pointer; transition: all 0.2s; margin-right: 8px; }
+  .copy-link-btn:hover { background: var(--gold); color: var(--bg); }
+
+  /* DEBRIEF */
+  .debrief-level { margin-bottom: 28px; }
+  .level-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .l1 { color: var(--gold); }
+  .l2 { color: var(--blue); }
+  .l3 { color: var(--green); }
+  .dq { padding: 11px 0; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text); }
+  .dq::before { content: '→ '; color: var(--blue); }
+
+  /* SUBMIT SCREEN */
+  .checklist { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+  .check-item { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--green); padding: 16px 20px; }
+  .check-item h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .check-item p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="badge">REMOTE · SESSION 1</div>
+    <div class="title">THE FLAT — DISTRIBUTIVE NEGOTIATION</div>
+  </div>
+  <div class="nav">
+    <button class="nav-btn active" onclick="show('intro')">Intro</button>
+    <button class="nav-btn" onclick="show('roles')">Roles</button>
+    <button class="nav-btn" onclick="show('prep')">AI Prep</button>
+    <button class="nav-btn" onclick="show('negotiate')">Negotiate</button>
+    <button class="nav-btn" onclick="show('debrief')">Debrief</button>
+    <button class="nav-btn" onclick="show('submit')">Submit</button>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div class="screen center-screen active" id="screen-intro">
+  <div style="text-align:center;max-width:800px;padding:40px;">
+    <div style="font-family:'Barlow Condensed';font-size:13px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;">Remote Negotiation · Session 1</div>
+    <div style="font-family:'Bebas Neue';font-size:100px;line-height:0.9;margin-bottom:24px;">THE<br><span style="color:var(--gold)">FLAT</span></div>
+    <p style="font-size:18px;color:var(--muted);margin-bottom:40px;line-height:1.6;">One person needs to sublet their apartment. The other needs a place to stay.<br>Both have confidential information. Only one will leave happy.</p>
+    <div style="display:flex;gap:48px;justify-content:center;">
+      <div style="text-align:center;"><span style="font-family:'Bebas Neue';font-size:56px;color:var(--gold);display:block">90</span><span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Minutes total</span></div>
+      <div style="text-align:center;"><span style="font-family:'Bebas Neue';font-size:56px;color:var(--gold);display:block">2</span><span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Per pair</span></div>
+      <div style="text-align:center;"><span style="font-family:'Bebas Neue';font-size:56px;color:var(--gold);display:block">3</span><span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Things to submit</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ROLES -->
+<div class="screen pad" id="screen-roles">
+  <div class="big-title">YOUR <span>ROLES</span></div>
+  <div class="sub">Paste these links in the Zoom chat right now. Everyone opens their role card and reads it privately.</div>
+  <div class="grid2">
+    <div class="link-card">
+      <div class="link-role" style="color:var(--gold)">Role A — The Sublessor</div>
+      <div class="link-url" id="url-s1a">roles/ex1_subarrendador.html</div>
+      <button class="copy-link-btn" onclick="copyLink('url-s1a', this)">COPY LINK</button>
+      <span style="font-size:12px;color:var(--muted)">You're subletting your apartment</span>
+    </div>
+    <div class="link-card">
+      <div class="link-role" style="color:var(--purple)">Role B — The Tenant</div>
+      <div class="link-url" id="url-s1b">roles/ex1_inquilino.html</div>
+      <button class="copy-link-btn" onclick="copyLink('url-s1b', this)">COPY LINK</button>
+      <span style="font-size:12px;color:var(--muted)">You need a place for 3 months</span>
+    </div>
+  </div>
+  <div class="grid3">
+    <div class="card gold-border">
+      <div class="card-label">Rule 1</div>
+      <h3>Read privately</h3>
+      <p>Your role card is for your eyes only. Do not share your numbers with your partner.</p>
+    </div>
+    <div class="card gold-border">
+      <div class="card-label">Rule 2</div>
+      <h3>Use AI to prep</h3>
+      <p>Your card has a prompt ready to copy. Paste it into Claude or ChatGPT. Read the response. Build your strategy.</p>
+    </div>
+    <div class="card gold-border">
+      <div class="card-label">Rule 3</div>
+      <h3>Record before you start</h3>
+      <p>Before the negotiation begins: hit RECORD on your video call. The recording is part of your submission.</p>
+    </div>
+  </div>
+  <div class="danger-box">⚠ <strong>Pairs:</strong> Split randomly or by the professor's assignment. Once in pairs, go to separate breakout rooms or start a private call. Do not negotiate in the main room.</div>
+</div>
+
+<!-- AI PREP TIMER -->
+<div class="screen center-screen timer-screen" id="screen-prep">
+  <div class="timer-label">AI PREPARATION TIME</div>
+  <div class="timer-display" id="prep-disp">10:00</div>
+  <div class="timer-sub">Open your role card. Copy the AI prompt. Read the response. Decide your opening move. Stay on mute in the main room.</div>
+  <div class="timer-controls">
+    <button class="timer-btn go" id="prep-btn" onclick="toggleTimer('prep')">START</button>
+    <button class="timer-btn rst" onclick="resetTimer('prep',600)">RESET</button>
+  </div>
+  <div style="font-size:13px;color:var(--muted);font-style:italic;margin-top:8px;">When time is up → go to breakout rooms and start negotiating immediately.</div>
+</div>
+
+<!-- NEGOTIATE TIMER -->
+<div class="screen center-screen timer-screen" id="screen-negotiate">
+  <div class="timer-label">NEGOTIATION TIME</div>
+  <div class="timer-display" id="neg-disp">25:00</div>
+  <div class="timer-sub">You're in your breakout rooms. Negotiate live. Hit record if you haven't yet. Reach a deal — or walk away.</div>
+  <div class="timer-controls">
+    <button class="timer-btn go" id="neg-btn" onclick="toggleTimer('neg')">START</button>
+    <button class="timer-btn rst" onclick="resetTimer('neg',1500)">RESET</button>
+  </div>
+  <div class="info-box" style="max-width:500px;">💬 When time is called: come back to the main room. Be ready to share your outcome in one sentence.</div>
+</div>
+
+<!-- DEBRIEF -->
+<div class="screen pad" id="screen-debrief">
+  <div class="big-title">THE <span>DEBRIEF</span></div>
+  <div class="sub">Ask 2–3 pairs to share their outcome before starting the questions. Let the class react before you explain anything.</div>
+  <div class="debrief-level">
+    <div class="level-label l1">LEVEL 1 — What happened?</div>
+    <div class="dq">What price did you agree on? Who made the first offer?</div>
+    <div class="dq">Did anyone walk away without a deal? What made you decide that?</div>
+    <div class="dq">Did anyone reveal a number they wish they hadn't?</div>
+  </div>
+  <div class="debrief-level">
+    <div class="level-label l2">LEVEL 2 — Why?</div>
+    <div class="dq">What did AI tell you to do? Did it help? What did it miss?</div>
+    <div class="dq">Why does the first number said have so much influence on the final outcome?</div>
+    <div class="dq">What was your BATNA? Did knowing it change how you negotiated?</div>
+    <div class="dq">Did anyone trade non-monetary things (reliability, move-in date) to close the gap?</div>
+  </div>
+  <div class="debrief-level">
+    <div class="level-label l3">LEVEL 3 — So what?</div>
+    <div class="dq">You'll negotiate a lease, a salary, a freelance rate in the next 2 years. What's the one thing you'll do differently after today?</div>
+    <div class="dq">What would have been different if you'd prepared for 20 extra minutes?</div>
+  </div>
+  <div class="info-box">💡 <strong>Key concept to land:</strong> BATNA = your real power. Anchoring = the first number shapes everything. Reservation price = sacred — never reveal it, never cross it. All three were present in this negotiation whether students named them or not.</div>
+</div>
+
+<!-- SUBMIT -->
+<div class="screen pad" id="screen-submit">
+  <div class="big-title">SUBMISSION <span>CHECKLIST</span></div>
+  <div class="sub">One submission per pair. Due at the end of this session (or within the window you set). Pairs submit everything together.</div>
+  <div class="checklist">
+    <div class="check-item">
+      <h4>1. Video recording of the negotiation</h4>
+      <p>The full call, unedited. Both parties visible. Don't cut anything — the professor reviews it as-is (or spot-checks). Zoom auto-saves to your computer.</p>
+    </div>
+    <div class="check-item">
+      <h4>2. AI chat export (both parties)</h4>
+      <p>Screenshot or copy-paste of what each person asked AI and what it said. If you didn't use AI, write why not.</p>
+    </div>
+    <div class="check-item">
+      <h4>3. Three-line reflection (written together)</h4>
+      <p>What price did you agree on (or "no deal")? · Who made the first offer and at what number? · One thing you'd do differently if you could restart.</p>
+    </div>
+  </div>
+  <div class="highlight">
+    <strong>Where to submit:</strong> [INSERT SUBMISSION LINK — Blackboard / Google Form / Email] <br>
+    <strong>Deadline:</strong> [INSERT DEADLINE]
+  </div>
+</div>
+
+<script>
+  function show(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+  const timers = {
+    prep: { s: 600, running: false, interval: null },
+    neg: { s: 1500, running: false, interval: null }
+  };
+  function fmt(s) { return Math.floor(s/60).toString().padStart(2,'0')+':'+(s%60).toString().padStart(2,'0'); }
+  function toggleTimer(id) {
+    const t = timers[id]; const btn = document.getElementById(id+'-btn'); const disp = document.getElementById(id+'-disp');
+    if (t.running) { clearInterval(t.interval); t.running=false; btn.textContent='RESUME'; }
+    else { t.running=true; btn.textContent='PAUSE'; t.interval=setInterval(()=>{ t.s--; disp.textContent=fmt(t.s); if(t.s<=30)disp.classList.add('urgent'); else disp.classList.remove('urgent'); if(t.s<=0){clearInterval(t.interval);t.running=false;btn.textContent='START';disp.textContent='TIME!';} },1000); }
+  }
+  function resetTimer(id, secs) {
+    const t = timers[id]; clearInterval(t.interval); t.running=false; t.s=secs;
+    document.getElementById(id+'-btn').textContent='START';
+    document.getElementById(id+'-disp').textContent=fmt(secs);
+    document.getElementById(id+'-disp').classList.remove('urgent');
+  }
+  function copyLink(id, btn) {
+    navigator.clipboard.writeText(document.getElementById(id).textContent.trim()).then(()=>{
+      btn.textContent='COPIED ✓'; setTimeout(()=>btn.textContent='COPY LINK',2000);
+    });
+  }
+</script>
+</body>
+</html>

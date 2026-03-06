@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SESSION 3 — The Framework | Negotiation</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a12; --surface: #13131f; --border: #2a2a3e; --text: #e8e8f0;
+    --muted: #6b6b8a; --accent: #ff4757; --blue: #3d84ff; --green: #2ed573;
+    --gold: #ffd32a; --purple: #a55eea;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .session-badge { background: var(--green); color: var(--bg); font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; padding: 4px 12px; font-weight: 700; }
+  .session-title { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+  .topbar-right { display: flex; gap: 8px; }
+  .nav-btn { background: var(--border); color: var(--text); border: none; font-family: 'Barlow', sans-serif; font-size: 12px; padding: 6px 14px; cursor: pointer; letter-spacing: 1px; transition: all 0.2s; }
+  .nav-btn:hover, .nav-btn.active { background: var(--green); color: var(--bg); }
+
+  .screen { display: none; flex: 1; overflow: hidden; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* RECAP */
+  .recap-screen { justify-content: center; align-items: center; padding: 40px; }
+  .recap-inner { max-width: 900px; width: 100%; }
+  .recap-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; }
+  .recap-title { font-family: 'Bebas Neue', sans-serif; font-size: 64px; letter-spacing: 2px; margin-bottom: 32px; }
+  .recap-title span { color: var(--green); }
+  .recap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .recap-card { background: var(--surface); border: 1px solid var(--border); padding: 28px; }
+  .recap-card.s1 { border-top: 4px solid var(--gold); }
+  .recap-card.s2 { border-top: 4px solid var(--blue); }
+  .recap-session { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; }
+  .recap-session.s1 { color: var(--gold); }
+  .recap-session.s2 { color: var(--blue); }
+  .recap-card h3 { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 1px; margin-bottom: 12px; }
+  .recap-card p { font-size: 15px; color: var(--muted); line-height: 1.6; }
+  .recap-card strong { color: var(--text); }
+  .recap-insight { margin-top: 24px; background: rgba(46,213,115,0.07); border: 1px solid rgba(46,213,115,0.25); padding: 20px 24px; font-size: 15px; line-height: 1.7; color: var(--text); }
+  .recap-insight strong { color: var(--green); }
+
+  /* QUESTIONS */
+  .questions-screen { justify-content: center; align-items: center; padding: 40px; }
+  .questions-inner { max-width: 860px; width: 100%; }
+  .q-title { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 2px; margin-bottom: 8px; }
+  .q-title span { color: var(--gold); }
+  .q-sub { font-size: 15px; color: var(--muted); margin-bottom: 36px; line-height: 1.5; }
+  .q-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 28px; }
+  .q-item { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--gold); padding: 20px 24px; cursor: pointer; transition: all 0.3s; }
+  .q-item:hover { background: rgba(255,211,42,0.04); }
+  .q-item.revealed { border-left-color: var(--green); }
+  .q-num { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 3px; color: var(--gold); margin-bottom: 8px; }
+  .q-item.revealed .q-num { color: var(--green); }
+  .q-text { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .q-why { font-size: 14px; color: var(--muted); line-height: 1.5; max-height: 0; overflow: hidden; transition: max-height 0.4s; }
+  .q-item.revealed .q-why { max-height: 120px; }
+  .q-hint { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; }
+
+  /* DONE */
+  .done-screen { justify-content: center; align-items: center; position: relative; overflow: hidden; }
+  .done-bg { position: absolute; font-family: 'Bebas Neue', sans-serif; font-size: 300px; color: rgba(255,255,255,0.015); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; letter-spacing: -10px; }
+  .done-content { text-align: center; position: relative; z-index: 1; max-width: 700px; }
+  .done-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--green); text-transform: uppercase; margin-bottom: 20px; }
+  .done-content h1 { font-family: 'Bebas Neue', sans-serif; font-size: 120px; line-height: 0.85; }
+  .done-content h1 span { color: var(--green); }
+  .done-content p { font-size: 20px; color: var(--muted); margin-top: 28px; font-weight: 300; line-height: 1.6; }
+  .done-reminder { margin-top: 40px; display: flex; flex-direction: column; gap: 12px; }
+  .done-reminder-item { font-size: 14px; color: var(--muted); padding: 10px 20px; border: 1px solid var(--border); letter-spacing: 1px; }
+  .done-reminder-item strong { color: var(--green); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="session-badge">SESSION 3</div>
+    <div class="session-title">THE FRAMEWORK — WHAT YOU NOW KNOW</div>
+  </div>
+  <div class="topbar-right">
+    <button class="nav-btn active" onclick="show('recap')">What We Did</button>
+    <button class="nav-btn" onclick="show('questions')">3 Questions</button>
+    <button class="nav-btn" onclick="show('done')">Done</button>
+  </div>
+</div>
+
+<!-- RECAP -->
+<div class="screen recap-screen active" id="screen-recap">
+  <div class="recap-inner">
+    <div class="recap-tag">Negotiation · Session 3 · The Synthesis</div>
+    <div class="recap-title">WHAT YOU DID <span>TODAY</span></div>
+    <div class="recap-grid">
+      <div class="recap-card s1">
+        <div class="recap-session s1">Session 1 — The Offer</div>
+        <h3>Distributive</h3>
+        <p>You negotiated a salary. One of you was trying to get more. The other was trying to spend less. <strong>There was a fixed amount of value</strong> — the question was how it got divided.<br><br>What you learned: <strong>BATNA gives you power. Anchoring shapes the outcome. Your reservation price is sacred.</strong></p>
+      </div>
+      <div class="recap-card s2">
+        <div class="recap-session s2">Session 2 — The Rights</div>
+        <h3>Integrative</h3>
+        <p>You negotiated media rights. Most of you competed — but one side needed audio and one needed video. <strong>The conflict was not real.</strong><br><br>What you learned: <strong>Positions divide. Interests connect. Ask "why" before you react to "what." The best deals create value — they don't just claim it.</strong></p>
+      </div>
+    </div>
+    <div class="recap-insight">
+      The skill is knowing which situation you're in. Most real negotiations are <strong>both at once</strong> — some issues are distributive (who gets how much), some are integrative (what each side actually needs). The negotiator who can read that difference, and switch between the two modes, wins more and burns fewer relationships.
+    </div>
+  </div>
+</div>
+
+<!-- 3 QUESTIONS -->
+<div class="screen questions-screen" id="screen-questions">
+  <div class="questions-inner">
+    <div class="q-title">3 QUESTIONS — <span>BEFORE EVERY NEGOTIATION</span></div>
+    <div class="q-sub">Not a framework to memorize. Three questions to ask yourself before you open your mouth in any negotiation — salary, budget, partnership, anything.</div>
+    <div class="q-list">
+      <div class="q-item" onclick="this.classList.toggle('revealed')">
+        <div class="q-num">QUESTION 1</div>
+        <div class="q-text">"What do I actually need — and what happens if I don't get it?"</div>
+        <div class="q-why">This is your BATNA and reservation price. Know them before you start. Without them, every pressure tactic works on you. With them, you negotiate from strength — even when you feel nervous.</div>
+        <div class="q-hint">↓ Click to expand</div>
+      </div>
+      <div class="q-item" onclick="this.classList.toggle('revealed')">
+        <div class="q-num">QUESTION 2</div>
+        <div class="q-text">"What do they actually need — and why do they need it?"</div>
+        <div class="q-why">This is the integrative unlock. Their position is what they're asking for. Their interest is why they want it. The win-win almost always lives in the interests — not the positions. If you don't know their interest, you're negotiating blind.</div>
+        <div class="q-hint">↓ Click to expand</div>
+      </div>
+      <div class="q-item" onclick="this.classList.toggle('revealed')">
+        <div class="q-num">QUESTION 3</div>
+        <div class="q-text">"What can I give them that costs me little — but is worth a lot to them?"</div>
+        <div class="q-why">This is the value creation move. In The Offer: remote work costs HR nothing but was worth real money to the candidate. In The Rights: audio costs VisualSport nothing. Look for asymmetry — your cheap is their precious.</div>
+        <div class="q-hint">↓ Click to expand</div>
+      </div>
+    </div>
+    <div style="background:rgba(61,132,255,0.07);border:1px solid rgba(61,132,255,0.25);padding:16px 20px;font-size:14px;color:var(--blue);line-height:1.6;">
+      <strong>Where AI fits:</strong> Use it to answer all three questions before you sit down. Research the other party. Estimate their BATNA. Generate creative trades. Rehearse the conversation. Then put the phone away — because the live negotiation requires something AI doesn't have: presence, judgment, and the ability to read another human in real time.
+    </div>
+  </div>
+</div>
+
+<!-- DONE -->
+<div class="screen done-screen" id="screen-done">
+  <div class="done-bg">DONE</div>
+  <div class="done-content">
+    <div class="done-tag">Negotiation Module — Complete</div>
+    <h1>YOU'RE<br><span>DONE.</span></h1>
+    <p>You negotiated under pressure. You made mistakes. You discovered something about how you operate when stakes are real.<br><br>That's the point.</p>
+    <div class="done-reminder">
+      <div class="done-reminder-item">Next time you negotiate a salary: <strong>anchor first, anchor boldly.</strong></div>
+      <div class="done-reminder-item">Next time you're in a conflict: <strong>ask why before you react to what.</strong></div>
+      <div class="done-reminder-item">Before every important negotiation: <strong>answer the 3 questions.</strong></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function show(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercise 3 — Group Brief</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0a0a12; --surface: #13131f; --border: #2a2a3e; --text: #e8e8f0; --muted: #6b6b8a; --accent: #ff4757; --blue: #3d84ff; --green: #2ed573; --gold: #ffd32a; --purple: #a55eea; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; min-height: 100vh; padding: 0 0 60px 0; }
+  .top-bar { background: var(--purple); color: #fff; text-align: center; padding: 12px; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; font-weight: 700; text-transform: uppercase; }
+  .hero { background: var(--surface); border-bottom: 1px solid var(--border); padding: 32px 24px 24px; text-align: center; }
+  .role-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+  .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 2px; line-height: 0.95; }
+  .hero h1 span { color: var(--purple); }
+  .hero-sub { font-size: 15px; color: var(--muted); margin-top: 12px; font-weight: 300; line-height: 1.6; max-width: 500px; margin-left: auto; margin-right: auto; }
+  .content { padding: 24px 20px; max-width: 680px; margin: 0 auto; }
+  .section { background: var(--surface); border: 1px solid var(--border); padding: 20px; margin-bottom: 14px; }
+  .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; display: block; }
+
+  .roles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .role-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; }
+  .role-card.a { border-top: 4px solid var(--gold); }
+  .role-card.b { border-top: 4px solid var(--blue); }
+  .role-name { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; letter-spacing: 2px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; }
+  .role-name.a { color: var(--gold); }
+  .role-name.b { color: var(--blue); }
+  .role-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .role-card ul li { font-size: 13px; line-height: 1.5; padding-left: 14px; position: relative; color: var(--muted); }
+  .role-card ul li::before { content: '·'; position: absolute; left: 0; }
+  .role-card ul li strong { color: var(--text); }
+
+  .issues-list { display: flex; flex-direction: column; gap: 12px; }
+  .issue { background: var(--bg); border: 1px solid var(--border); border-left: 3px solid var(--purple); padding: 14px 16px; }
+  .issue-num { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; color: var(--purple); text-transform: uppercase; margin-bottom: 6px; }
+  .issue-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .issue-detail { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  .task-section { background: rgba(165,94,234,0.07); border: 1px solid rgba(165,94,234,0.35); padding: 20px; margin-bottom: 14px; }
+  .task-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--purple); margin-bottom: 14px; display: block; }
+  .task-steps { display: flex; flex-direction: column; gap: 14px; }
+  .task-step { display: flex; gap: 14px; align-items: flex-start; }
+  .step-num { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: rgba(165,94,234,0.4); line-height: 1; flex-shrink: 0; width: 32px; }
+  .step-body h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .step-body p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .step-body strong { color: var(--text); }
+
+  .ai-section { background: rgba(61,132,255,0.06); border: 1px solid rgba(61,132,255,0.35); padding: 20px; margin-bottom: 14px; }
+  .ai-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; display: block; }
+  .ai-intro { font-size: 13px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+  .prompts-grid { display: flex; flex-direction: column; gap: 10px; }
+  .prompt-box { background: var(--bg); border: 1px solid var(--border); padding: 12px 14px; }
+  .prompt-for { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .prompt-text { font-size: 13px; line-height: 1.6; color: var(--text); font-family: monospace; }
+  .copy-btn { margin-top: 8px; background: var(--blue); color: #fff; border: none; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; padding: 7px 14px; cursor: pointer; transition: background 0.2s; }
+  .copy-btn:hover { background: #5a9fff; }
+
+  .submit-section { background: rgba(46,213,115,0.06); border: 1px solid rgba(46,213,115,0.3); padding: 20px; margin-bottom: 14px; }
+  .submit-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--green); margin-bottom: 12px; display: block; }
+  .submit-section ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .submit-section ul li { font-size: 14px; line-height: 1.5; padding-left: 20px; position: relative; color: var(--text); }
+  .submit-section ul li::before { content: '☐'; position: absolute; left: 0; color: var(--green); }
+  .submit-note { font-size: 12px; color: var(--muted); margin-top: 6px; font-style: italic; padding-left: 20px; }
+
+  .timer-box { background: rgba(255,211,42,0.06); border: 1px solid rgba(255,211,42,0.3); padding: 16px 20px; margin-bottom: 14px; text-align: center; }
+  .timer-box .t { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--gold); display: block; line-height: 1; }
+  .timer-box .tl { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">Exercise 3 — Group Brief · This card is for all 4 members</div>
+
+<div class="hero">
+  <div class="role-tag">Exercise 3 · The Co-Founders · Group Briefing</div>
+  <h1>THE<br><span>CO-FOUNDERS</span></h1>
+  <div class="hero-sub">Two friends are starting a company together. They need to agree on 4 things before they can begin. Your group's job is to analyze the situation and design the best possible agreement — for both of them.</div>
+</div>
+
+<div class="content">
+
+  <div class="timer-box">
+    <span class="t">35 min</span>
+    <span class="tl">Total time for this exercise including video recording</span>
+  </div>
+
+  <!-- THE TWO FOUNDERS -->
+  <div style="margin-bottom:6px;font-family:'Barlow Condensed';font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);">The Two Founders</div>
+  <div class="roles-grid">
+    <div class="role-card a">
+      <div class="role-name a">Founder A — Tech</div>
+      <ul>
+        <li>Will build the entire product for the first 18 months</li>
+        <li>Has <strong>12 months of savings</strong> — doesn't need a salary immediately</li>
+        <li>Worried about: the company pivoting away from the product vision without consulting them</li>
+        <li>Worried about: being diluted if B brings in investors</li>
+        <li><strong>Position:</strong> 50-50 equity, equal decision-making</li>
+        <li><strong>Real interest:</strong> Recognition for technical work, protection if vision changes, no financial pressure for 12 months</li>
+      </ul>
+    </div>
+    <div class="role-card b">
+      <div class="role-name b">Founder B — Business</div>
+      <ul>
+        <li>Will handle sales, fundraising, and operations</li>
+        <li>Has <strong>4 months of savings</strong> — needs some income by month 5 or 6</li>
+        <li>Worried about: A leaving early and taking all the technical knowledge with them</li>
+        <li>Worried about: being seen as "less important" because they don't write code</li>
+        <li><strong>Position:</strong> 50-50 equity, wants a small salary from month 4</li>
+        <li><strong>Real interest:</strong> Financial security in the short term, protection if A leaves, equal respect and decision-making power</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- THE 4 ISSUES -->
+  <div class="section">
+    <span class="section-label">The 4 Issues They Need to Agree On</span>
+    <div class="issues-list">
+      <div class="issue">
+        <div class="issue-num">Issue 1</div>
+        <div class="issue-title">Equity Split</div>
+        <div class="issue-detail">How do they divide ownership? 50-50? 60-40? Some other split? What arguments justify each option?</div>
+      </div>
+      <div class="issue">
+        <div class="issue-num">Issue 2</div>
+        <div class="issue-title">Vesting Schedule</div>
+        <div class="issue-detail">What happens if one founder leaves after 6 months? After 18 months? A vesting schedule (earning equity over time) protects both sides — but how should it be structured?</div>
+      </div>
+      <div class="issue">
+        <div class="issue-num">Issue 3</div>
+        <div class="issue-title">Decision-Making</div>
+        <div class="issue-detail">Who has final say when they disagree? On what topics? How do they prevent deadlock when they vote 1-1?</div>
+      </div>
+      <div class="issue">
+        <div class="issue-num">Issue 4</div>
+        <div class="issue-title">Salary</div>
+        <div class="issue-detail">Do they pay themselves from day 1? How much? When does it start? Who gets paid first if the company only has money for one salary?</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- YOUR TASK -->
+  <div class="task-section">
+    <span class="task-label">Your Group's Task — 4 People, 35 Minutes</span>
+    <div class="task-steps">
+      <div class="task-step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Assign roles (2 min)</h4>
+          <p>Two of you represent Founder A's perspective. Two represent Founder B's. You're not negotiating against each other — you're <strong>analyzing both sides</strong> to find the best agreement.</p>
+        </div>
+      </div>
+      <div class="task-step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Use AI to understand both sides (10 min)</h4>
+          <p>Each pair uses the AI prompts below to understand their founder's real interests, BATNA, and priorities. Share your findings with the full group.</p>
+        </div>
+      </div>
+      <div class="task-step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Design the optimal agreement together (15 min)</h4>
+          <p>For each of the 4 issues: <strong>What do both sides actually need? Is there a solution that satisfies both?</strong> Don't just split the difference — find the solution that creates the most value for both founders.</p>
+        </div>
+      </div>
+      <div class="task-step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4>Record your 3-minute video (8 min)</h4>
+          <p>All 4 members on camera. Present your proposed agreement and explain <strong>why it works for both founders</strong> using the concepts from the module (BATNA, interests vs. positions, win-win). <strong>Everyone must speak.</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI PROMPTS -->
+  <div class="ai-section">
+    <span class="ai-label">AI Prompts — One Per Pair</span>
+    <div class="ai-intro">The A-pair and B-pair each use their prompt, then share findings with the full group before designing the agreement.</div>
+    <div class="prompts-grid">
+      <div class="prompt-box">
+        <div class="prompt-for">For the Founder A pair</div>
+        <div class="prompt-text" id="prompt-a">Two friends are starting a tech startup. Founder A is the technical co-founder who will build the product. They have 12 months of personal savings and no urgent need for salary. They're worried about the company pivoting without their input, and about being diluted by investors. They want 50-50 equity and equal decision-making.
+
+Analyze Founder A's situation:
+- What is their BATNA (what happens if no deal is reached)?
+- What are their real interests vs. their stated position?
+- On salary, vesting, and decision-making: what outcome would actually serve them best?
+- Where might they be willing to give ground?</div>
+        <button class="copy-btn" onclick="copyPrompt('prompt-a', this)">COPY →</button>
+      </div>
+      <div class="prompt-box">
+        <div class="prompt-for">For the Founder B pair</div>
+        <div class="prompt-text" id="prompt-b">Two friends are starting a tech startup. Founder B handles business: sales, fundraising, operations. They have only 4 months of personal savings and need some income by month 5-6 or they'll be in financial trouble. They're worried about the technical founder leaving early and taking all knowledge with them. They want 50-50 equity but also need a small salary from month 4.
+
+Analyze Founder B's situation:
+- What is their BATNA (what happens if no deal is reached)?
+- What are their real interests vs. their stated position?
+- On salary, vesting, and decision-making: what outcome would actually serve them best?
+- Where might they be willing to give ground?</div>
+        <button class="copy-btn" onclick="copyPrompt('prompt-b', this)">COPY →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMISSION -->
+  <div class="submit-section">
+    <span class="submit-label">Submission — One per group of 4</span>
+    <ul>
+      <li>Video (3 minutes, all 4 on camera, everyone speaks) — your proposed agreement + why it works for both founders</li>
+      <li>AI chat logs from both pairs (screenshot or export)</li>
+      <li>One paragraph: Which issue was hardest to solve, and why?</li>
+    </ul>
+    <div class="submit-note">The video is assessed on reasoning, not production quality. Phone camera is fine. What matters: can you explain WHY your agreement is good for both sides?</div>
+  </div>
+
+</div>
+
+<script>
+  function copyPrompt(id, btn) {
+    navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
+      btn.textContent = 'COPIED ✓';
+      setTimeout(() => btn.textContent = 'COPY →', 2000);
+    });
+  }
+</script>
+</body>
+</html>

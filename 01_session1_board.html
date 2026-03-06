@@ -180,9 +180,8 @@
     <div class="qr-row">
       <div class="qr-card">
         <div class="qr-role candidate">← Left side of the room</div>
-        <div class="qr-placeholder">
-          <svg viewBox="0 0 100 100" fill="currentColor"><rect x="10" y="10" width="30" height="30"/><rect x="60" y="10" width="30" height="30"/><rect x="10" y="60" width="30" height="30"/><rect x="50" y="55" width="10" height="10"/><rect x="65" y="55" width="10" height="10"/><rect x="80" y="55" width="10" height="10"/><rect x="50" y="70" width="10" height="10"/><rect x="65" y="70" width="10" height="10"/><rect x="80" y="70" width="10" height="10"/><rect x="50" y="85" width="10" height="10"/><rect x="80" y="85" width="10" height="10"/></svg>
-          <span style="font-size:11px;color:var(--muted);letter-spacing:1px;">ADD QR CODE</span>
+        <div class="qr-placeholder" style="background:#fff;padding:8px;display:flex;align-items:center;justify-content:center;">
+          <div id="qr-s1-candidate"></div>
         </div>
         <div class="side-label candidate">CANDIDATE</div>
         <div class="qr-url">roles/s1_candidate.html</div>
@@ -190,9 +189,8 @@
       </div>
       <div class="qr-card">
         <div class="qr-role hr" style="text-align:right">Right side of the room →</div>
-        <div class="qr-placeholder">
-          <svg viewBox="0 0 100 100" fill="currentColor"><rect x="10" y="10" width="30" height="30"/><rect x="60" y="10" width="30" height="30"/><rect x="10" y="60" width="30" height="30"/><rect x="50" y="55" width="10" height="10"/><rect x="65" y="55" width="10" height="10"/><rect x="80" y="55" width="10" height="10"/><rect x="50" y="70" width="10" height="10"/><rect x="65" y="70" width="10" height="10"/><rect x="80" y="70" width="10" height="10"/><rect x="50" y="85" width="10" height="10"/><rect x="80" y="85" width="10" height="10"/></svg>
-          <span style="font-size:11px;color:var(--muted);letter-spacing:1px;">ADD QR CODE</span>
+        <div class="qr-placeholder" style="background:#fff;padding:8px;display:flex;align-items:center;justify-content:center;">
+          <div id="qr-s1-hr"></div>
         </div>
         <div class="side-label hr">HR MANAGER</div>
         <div class="qr-url">roles/s1_hr.html</div>
@@ -224,6 +222,14 @@
     <button class="timer-btn reset" onclick="resetTimer('neg', 1200)">RESET</button>
   </div>
   <div class="prof-note" style="max-width:600px;">
+    👁 <strong>Professor:</strong> Walk the room. Note who anchored high, who caved early, who revealed their minimum. These are your debrief examples.
+  </div>
+  <div style="margin-top:28px;text-align:center;">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">When time is called — scan to submit your result</div>
+    <div style="background:#fff;padding:10px;display:inline-block;">
+      <div id="qr-submit-s1"></div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:8px;">submit_s1.html · One person per pair</div>
   </div>
 </div>
 
@@ -365,6 +371,16 @@
     document.getElementById(t.display).textContent = fmt(t.seconds);
     document.getElementById(t.display).classList.remove('urgent');
   }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  const BASE = 'https://hmontoyac3.github.io/negotiation-class/';
+  function makeQR(id, url) {
+    new QRCode(document.getElementById(id), { text: url, width: 140, height: 140, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+  }
+  makeQR('qr-s1-candidate', BASE + 'roles/s1_candidate.html');
+  makeQR('qr-s1-hr',        BASE + 'roles/s1_hr.html');
+  makeQR('qr-submit-s1',    BASE + 'submit_s1.html');
 </script>
 </body>
 </html>

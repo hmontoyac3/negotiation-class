@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attendance Requests — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700&display=swap" rel="stylesheet">
+
+<script src="firebase-config.js"></script>
+<script>/* FIREBASE_INLINE */</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<style>
+  :root {
+    --bg: #050a14; --surface: #0d1526; --border: #1a2840; --text: #e0eaff;
+    --muted: #4a5f80; --gold: #ffd700; --green: #00d68f; --red: #ff4757; --blue: #3d9bff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; min-height: 100vh; }
+
+  header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 20px 40px; display: flex; align-items: center; justify-content: space-between;
+  }
+  header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 3px; }
+  header h1 span { color: var(--gold); }
+  .header-sub { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+  .live-badge { display: flex; align-items: center; gap: 7px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.3s; }
+  .live-dot.on { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .live-dot.off { background: var(--red); }
+
+  .main { padding: 32px 40px; }
+
+  .stats-row { display: flex; gap: 16px; margin-bottom: 28px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); padding: 16px 24px; text-align: center; min-width: 100px; }
+  .stat .n { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--gold); display: block; line-height: 1; }
+  .stat .l { font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; display: block; }
+
+  .toolbar { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
+  .filter-select {
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    font-family: 'Barlow', sans-serif; font-size: 13px; padding: 8px 12px; outline: none;
+  }
+  .copy-btn, .reset-btn {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 1px;
+    padding: 8px 16px; cursor: pointer; border: 1px solid var(--border); transition: all 0.2s;
+  }
+  .copy-btn { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+  .copy-btn:hover { background: #ffe44d; }
+  .reset-btn { background: transparent; color: var(--muted); }
+  .reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead tr { background: var(--surface); }
+  th {
+    text-align: left; padding: 12px 16px;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 11px;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  td { padding: 12px 16px; border-bottom: 1px solid rgba(26,40,64,0.6); vertical-align: top; }
+  tr:hover td { background: rgba(13,21,38,0.6); }
+
+  .tag {
+    display: inline-block; font-size: 11px; font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 1px; padding: 2px 8px; border-radius: 2px;
+  }
+  .tag.pending  { background: rgba(255,215,0,0.1);  color: var(--gold);  border: 1px solid rgba(255,215,0,0.3); }
+  .tag.done     { background: rgba(0,214,143,0.1);  color: var(--green); border: 1px solid rgba(0,214,143,0.3); }
+
+  .done-btn {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 1px;
+    padding: 3px 10px; border: 1px solid var(--border); background: transparent;
+    color: var(--muted); cursor: pointer; transition: all 0.2s;
+  }
+  .done-btn:hover { border-color: var(--green); color: var(--green); }
+
+  .empty { color: var(--muted); font-size: 14px; padding: 40px; text-align: center; }
+
+  .reason-cell { max-width: 220px; color: var(--muted); font-size: 13px; line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>ATTENDANCE <span>REQUESTS</span></h1>
+    <div class="header-sub">Managerial &amp; Leadership Skills Seminar — Live</div>
+  </div>
+  <div class="live-badge">
+    <div class="live-dot" id="live-dot"></div>
+    <span id="live-txt">connecting</span>
+  </div>
+</header>
+
+<div class="main">
+  <div class="stats-row">
+    <div class="stat"><span class="n" id="n-total">0</span><span class="l">Total</span></div>
+    <div class="stat"><span class="n" id="n-pending" style="color:var(--gold)">0</span><span class="l">Pending</span></div>
+    <div class="stat"><span class="n" id="n-done" style="color:var(--green)">0</span><span class="l">Done</span></div>
+  </div>
+
+  <div class="toolbar">
+    <select class="filter-select" id="filter-group" onchange="render()">
+      <option value="">All groups</option>
+      <option value="BIEF 40">BIEF 40</option>
+      <option value="BIEM 18">BIEM 18</option>
+      <option value="Other">Other</option>
+    </select>
+    <select class="filter-select" id="filter-status" onchange="render()">
+      <option value="">All statuses</option>
+      <option value="pending">Pending</option>
+      <option value="done">Done</option>
+    </select>
+    <button class="copy-btn" onclick="copyForEmail()">COPY LIST FOR EMAIL</button>
+    <button class="reset-btn" onclick="resetAll()">RESET ALL</button>
+  </div>
+
+  <table id="requests-table">
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>ID</th>
+        <th>Group</th>
+        <th>Date</th>
+        <th>Session</th>
+        <th>Reason</th>
+        <th>Submitted</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="table-body">
+      <tr><td colspan="9" class="empty">No requests yet.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+  firebase.initializeApp(window.firebaseConfig);
+  const db = firebase.database();
+  let allData = {};
+
+  db.ref('.info/connected').on('value', snap => {
+    const dot = document.getElementById('live-dot');
+    const txt = document.getElementById('live-txt');
+    dot.className = 'live-dot ' + (snap.val() ? 'on' : 'off');
+    txt.textContent = snap.val() ? 'live' : 'offline';
+  });
+
+  db.ref('attendance').on('value', snap => {
+    allData = snap.val() || {};
+    render();
+  });
+
+  function render() {
+    const filterGroup  = document.getElementById('filter-group').value;
+    const filterStatus = document.getElementById('filter-status').value;
+
+    const rows = Object.entries(allData).filter(([k, v]) => {
+      if (filterGroup  && v.group  !== filterGroup)  return false;
+      if (filterStatus && (v.status || 'pending') !== filterStatus) return false;
+      return true;
+    }).sort((a, b) => (b[1].submittedAt || 0) - (a[1].submittedAt || 0));
+
+    const total   = Object.keys(allData).length;
+    const pending = Object.values(allData).filter(v => (v.status || 'pending') === 'pending').length;
+    document.getElementById('n-total').textContent   = total;
+    document.getElementById('n-pending').textContent = pending;
+    document.getElementById('n-done').textContent    = total - pending;
+
+    const tbody = document.getElementById('table-body');
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="9" class="empty">No requests match the current filter.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = rows.map(([key, v]) => {
+      const status = v.status || 'pending';
+      const date   = new Date(v.submittedAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+      return `<tr>
+        <td><strong>${v.firstName} ${v.lastName}</strong><br><span style="font-size:12px;color:var(--muted)">${v.email}</span></td>
+        <td style="font-family:'Barlow Condensed';font-size:15px">${v.studentId}</td>
+        <td>${v.group}</td>
+        <td style="white-space:nowrap">${v.date}</td>
+        <td style="white-space:nowrap;font-size:13px">${v.session}</td>
+        <td class="reason-cell">${v.reason}</td>
+        <td style="font-size:12px;color:var(--muted);white-space:nowrap">${date}</td>
+        <td><span class="tag ${status}">${status.toUpperCase()}</span></td>
+        <td>${status === 'pending'
+          ? `<button class="done-btn" onclick="markDone('${key}')">MARK DONE</button>`
+          : `<span style="font-size:11px;color:var(--muted)">✓</span>`}
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function markDone(key) {
+    db.ref('attendance/' + key + '/status').set('done');
+  }
+
+  function copyForEmail() {
+    const pending = Object.values(allData).filter(v => (v.status || 'pending') === 'pending');
+    if (pending.length === 0) { alert('No pending requests to copy.'); return; }
+    const lines = pending.map(v =>
+      `- ${v.firstName} ${v.lastName} (${v.email}) — ${v.date}, ${v.session}`
+    ).join('\n');
+    navigator.clipboard.writeText(lines).then(() => alert('Copied to clipboard!'));
+  }
+
+  function resetAll() {
+    if (confirm('Delete ALL attendance requests? This cannot be undone.')) {
+      db.ref('attendance').remove();
+    }
+  }
+</script>
+</body>
+</html>

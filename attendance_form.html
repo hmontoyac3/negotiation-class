@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Attendance Correction Request</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<script src="firebase-config.js"></script>
+<script>/* FIREBASE_INLINE */</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<style>
+  :root {
+    --bg: #050a14; --surface: #0d1526; --border: #1a2840;
+    --text: #e0eaff; --muted: #4a5f80; --gold: #ffd700;
+    --green: #00d68f; --red: #ff4757; --blue: #3d9bff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; padding: 40px 20px;
+  }
+
+  .badge {
+    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold); border: 1px solid rgba(255,215,0,0.3);
+    padding: 5px 14px; margin-bottom: 24px;
+  }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 46px; letter-spacing: 3px;
+    line-height: 1; text-align: center; margin-bottom: 8px;
+  }
+  .sub { font-size: 14px; color: var(--muted); text-align: center; margin-bottom: 36px; max-width: 420px; line-height: 1.6; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    width: 100%; max-width: 480px; padding: 32px 28px;
+  }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .field { margin-bottom: 22px; }
+  .field label {
+    display: block; font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+
+  input, select, textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: 'Barlow', sans-serif; font-size: 16px;
+    font-weight: 400; padding: 12px 14px; outline: none; appearance: none;
+    transition: border-color 0.2s; resize: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+  input::placeholder, textarea::placeholder { color: var(--muted); }
+
+  select option { background: #0d1526; }
+
+  .proof-note {
+    background: rgba(61,155,255,0.06); border: 1px solid rgba(61,155,255,0.2);
+    padding: 12px 14px; font-size: 13px; color: var(--muted); line-height: 1.5;
+    margin-bottom: 22px;
+  }
+  .proof-note strong { color: var(--blue); display: block; margin-bottom: 4px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
+
+  .submit-btn {
+    width: 100%; background: var(--gold); color: var(--bg);
+    border: none; font-family: 'Bebas Neue', sans-serif; font-size: 24px;
+    letter-spacing: 3px; padding: 16px; cursor: pointer; transition: all 0.2s;
+  }
+  .submit-btn:hover { background: #ffe44d; }
+  .submit-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+  .error-msg { color: var(--red); font-size: 12px; margin-top: 6px; display: none; }
+
+  /* Confirmation */
+  #confirm-screen {
+    display: none; flex-direction: column; align-items: center;
+    text-align: center; max-width: 480px; width: 100%;
+  }
+  .check-icon { font-size: 64px; margin-bottom: 20px; animation: pop 0.4s ease-out; }
+  @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .confirm-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 44px; letter-spacing: 3px;
+    color: var(--green); margin-bottom: 12px;
+  }
+  .confirm-detail { font-size: 15px; color: var(--muted); line-height: 1.7; margin-bottom: 28px; }
+  .confirm-note {
+    font-size: 13px; color: var(--muted); border: 1px solid var(--border);
+    padding: 14px 20px; line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div id="form-screen" style="display:flex;flex-direction:column;align-items:center;width:100%;">
+  <div class="badge">Managerial &amp; Leadership Skills Seminar</div>
+  <h1>ATTENDANCE CORRECTION</h1>
+  <p class="sub">Fill this form if you were present in class but couldn't register your attendance. Your professor will review it.</p>
+
+  <div class="card">
+
+    <div class="row">
+      <div class="field">
+        <label>First Name</label>
+        <input type="text" id="first-name" placeholder="Maria">
+        <div class="error-msg" id="err-first">Required</div>
+      </div>
+      <div class="field">
+        <label>Last Name</label>
+        <input type="text" id="last-name" placeholder="Rossi">
+        <div class="error-msg" id="err-last">Required</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Student ID</label>
+      <input type="text" id="student-id" placeholder="3123456">
+      <div class="error-msg" id="err-id">Required</div>
+    </div>
+
+    <div class="field">
+      <label>Bocconi Email</label>
+      <input type="email" id="email" placeholder="name.surname@studbocconi.it">
+      <div class="error-msg" id="err-email">Enter a valid @studbocconi.it email</div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Class Group</label>
+        <select id="group">
+          <option value="">— Select —</option>
+          <option value="BIEF 40">BIEF 40</option>
+          <option value="BIEM 18">BIEM 18</option>
+          <option value="Other">Other</option>
+        </select>
+        <div class="error-msg" id="err-group">Required</div>
+      </div>
+      <div class="field">
+        <label>Session Date</label>
+        <input type="date" id="date">
+        <div class="error-msg" id="err-date">Required</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Session Time</label>
+      <select id="session">
+        <option value="">— Select —</option>
+        <option value="Session 1 (08:30)">Session 1 — 08:30</option>
+        <option value="Session 2 (10:15)">Session 2 — 10:15</option>
+        <option value="Session 3 (12:00)">Session 3 — 12:00</option>
+      </select>
+      <div class="error-msg" id="err-session">Required</div>
+    </div>
+
+    <div class="field">
+      <label>Reason</label>
+      <textarea id="reason" rows="3" placeholder="Briefly explain why you couldn't check in…"></textarea>
+      <div class="error-msg" id="err-reason">Required</div>
+    </div>
+
+    <div class="proof-note">
+      <strong>Proof of attendance</strong>
+      If you have a screenshot, boarding pass, or any supporting document, please email it to your professor referencing your Student ID. This form alone is not sufficient if you have proof available.
+    </div>
+
+    <div id="err-general" class="error-msg" style="margin-bottom:14px;font-size:13px;"></div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitForm()">SUBMIT REQUEST</button>
+  </div>
+</div>
+
+<!-- CONFIRMATION -->
+<div id="confirm-screen">
+  <div class="check-icon">✅</div>
+  <div class="confirm-title">REQUEST SENT</div>
+  <div class="confirm-detail" id="confirm-detail">—</div>
+  <div class="confirm-note">Your professor will review your request. If you have proof (screenshot, boarding pass, etc.), please email it to her with your Student ID in the subject line.</div>
+</div>
+
+<script>
+  firebase.initializeApp(window.firebaseConfig);
+  const db = firebase.database();
+
+  function submitForm() {
+    // Clear errors
+    document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+
+    const firstName  = document.getElementById('first-name').value.trim();
+    const lastName   = document.getElementById('last-name').value.trim();
+    const studentId  = document.getElementById('student-id').value.trim();
+    const email      = document.getElementById('email').value.trim();
+    const group      = document.getElementById('group').value;
+    const date       = document.getElementById('date').value;
+    const session    = document.getElementById('session').value;
+    const reason     = document.getElementById('reason').value.trim();
+
+    let valid = true;
+    if (!firstName) { show('err-first'); valid = false; }
+    if (!lastName)  { show('err-last');  valid = false; }
+    if (!studentId) { show('err-id');    valid = false; }
+    if (!email || !email.endsWith('@studbocconi.it')) { show('err-email'); valid = false; }
+    if (!group)   { show('err-group');   valid = false; }
+    if (!date)    { show('err-date');    valid = false; }
+    if (!session) { show('err-session'); valid = false; }
+    if (!reason)  { show('err-reason');  valid = false; }
+    if (!valid) return;
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'SENDING…';
+
+    const data = {
+      firstName, lastName, studentId, email,
+      group, date, session, reason,
+      submittedAt: firebase.database.ServerValue.TIMESTAMP
+    };
+
+    db.ref('attendance/' + studentId + '_' + date.replace(/-/g,'')).set(data)
+      .then(() => {
+        document.getElementById('form-screen').style.display = 'none';
+        document.getElementById('confirm-screen').style.display = 'flex';
+        document.getElementById('confirm-detail').innerHTML =
+          `<strong style="color:var(--text)">${firstName} ${lastName}</strong><br>
+           ${group} · ${date} · ${session}`;
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.textContent = 'SUBMIT REQUEST';
+        const e = document.getElementById('err-general');
+        e.textContent = 'Submission failed. Check your connection and try again.';
+        e.style.display = 'block';
+        console.error(err);
+      });
+  }
+
+  function show(id) {
+    document.getElementById(id).style.display = 'block';
+  }
+</script>
+</body>
+</html>

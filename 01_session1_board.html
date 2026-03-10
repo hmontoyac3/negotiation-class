@@ -146,6 +146,30 @@
   .stats-next-btn:hover { filter: brightness(1.2); }
   .stats-progress { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; color: var(--muted); min-width: 40px; }
   .stats-fade { opacity: 0 !important; transform: translateY(12px) !important; }
+
+  /* MINI DEAL */
+  .mini-screen { flex-direction: column; }
+  .mini-header { padding: 20px 48px 14px; flex-shrink: 0; border-bottom: 1px solid var(--border); }
+  .mini-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .mini-title { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 2px; line-height: 1; }
+  .mini-title .hl { color: var(--gold); }
+  .mini-sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .mini-body { display: grid; grid-template-columns: 1fr 60px 1fr; flex: 1; overflow: hidden; padding: 20px 48px; align-items: start; }
+  .mini-card { background: var(--surface); border: 1px solid var(--border); padding: 22px; }
+  .mini-card-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+  .mini-card-name { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 1px; margin-bottom: 16px; }
+  .mini-card ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .mini-card li { font-size: 13px; line-height: 1.5; padding-left: 20px; position: relative; }
+  .mini-card li::before { content: '→'; position: absolute; left: 0; color: var(--muted); font-size: 12px; }
+  .mini-vs-col { display: flex; align-items: center; justify-content: center; }
+  .mini-vs-text { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--border); }
+  .mini-footer { padding: 16px 48px; display: flex; align-items: center; gap: 32px; flex-shrink: 0; border-top: 1px solid var(--border); background: var(--surface); }
+  .mini-timer-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+  .mini-timer-display { font-family: 'Bebas Neue', sans-serif; font-size: 56px; line-height: 1; color: var(--green); transition: color 0.3s; }
+  .mini-timer-display.urgent { color: var(--accent); animation: pulse 0.5s infinite; }
+  .mini-timer-controls { display: flex; gap: 12px; }
+  .mini-timer-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; padding: 10px 24px; border: 2px solid; cursor: pointer; background: transparent; transition: all 0.2s; }
+  .mini-goal { font-size: 13px; color: var(--muted); line-height: 1.6; max-width: 300px; margin-left: auto; font-style: italic; }
 </style>
 </head>
 <body>
@@ -159,6 +183,7 @@
     <button class="nav-btn active" onclick="show('intro')">Intro</button>
     <button class="nav-btn" onclick="show('stats');initStats()">Wake Up</button>
     <button class="nav-btn" onclick="show('theory')">Theory</button>
+    <button class="nav-btn" onclick="show('mini')">Mini Deal</button>
     <button class="nav-btn" onclick="show('setup')">Setup</button>
     <button class="nav-btn" onclick="show('timer-prep')">AI Prep</button>
     <button class="nav-btn" onclick="show('timer-neg')">Negotiate</button>
@@ -258,6 +283,51 @@
       <div class="stats-progress" id="stats-progress">1 / 5</div>
       <button class="stats-next-btn" id="stats-next-btn" onclick="nextStat()">NEXT →</button>
     </div>
+  </div>
+</div>
+
+<!-- MINI DEAL -->
+<div class="screen mini-screen" id="screen-mini">
+  <div class="mini-header">
+    <div class="mini-tag">Warm-Up · No AI · No Role Cards · Read your side only</div>
+    <div class="mini-title">MINI <span class="hl">DEAL</span></div>
+    <div class="mini-sub">Each pair: left side is the Employee, right side is the Manager. Read your card. Don't look at the other one. Negotiate. 8 minutes.</div>
+  </div>
+  <div class="mini-body">
+    <div class="mini-card">
+      <div class="mini-card-label" style="color:var(--gold)">← Left side of the room</div>
+      <div class="mini-card-name" style="color:var(--gold)">The Employee</div>
+      <ul>
+        <li>You earn €2,200/month. Two years at the company. You want a raise.</li>
+        <li>Market rate for your role: <strong>€2,400–€2,800</strong>. You've checked.</li>
+        <li><strong>Your BATNA:</strong> another company offered you €2,400. You haven't said yes yet.</li>
+        <li><strong>Your floor:</strong> you will not accept below €2,300. Below that, you take the other job.</li>
+        <li>Start high. Justify with market data. Only mention the other offer if things stall.</li>
+      </ul>
+    </div>
+    <div class="mini-vs-col"><div class="mini-vs-text">VS</div></div>
+    <div class="mini-card">
+      <div class="mini-card-label" style="color:var(--purple); text-align:right">Right side of the room →</div>
+      <div class="mini-card-name" style="color:var(--purple)">The Manager</div>
+      <ul>
+        <li>They're asking for a raise. They're good — you genuinely don't want to lose them.</li>
+        <li><strong>Budget ceiling: €2,500/month.</strong> You cannot go above this.</li>
+        <li>If needed, you can also offer: +1 remote day/week, €800 training budget, or a 6-month performance review.</li>
+        <li><strong>Your BATNA:</strong> replacing them costs €3,000+ in recruitment. You're the weaker side — they may not know that.</li>
+        <li>Start low. Use the perks strategically. Don't give everything at once.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="mini-footer">
+    <div>
+      <div class="mini-timer-label">Negotiation Time</div>
+      <div class="mini-timer-display" id="mini-display">08:00</div>
+    </div>
+    <div class="mini-timer-controls">
+      <button class="mini-timer-btn" id="mini-start-btn" onclick="toggleTimer('mini')" style="border-color:var(--green);color:var(--green)">START</button>
+      <button class="mini-timer-btn" onclick="resetTimer('mini', 480)" style="border-color:var(--muted);color:var(--muted)">RESET</button>
+    </div>
+    <div class="mini-goal">Agree on a salary — or walk away. Use what you know. Protect what gives you power.</div>
   </div>
 </div>
 
@@ -435,7 +505,8 @@
   // Timer system — two independent timers
   const timers = {
     prep: { seconds: 420, original: 420, running: false, interval: null, display: 'prep-display', btn: 'prep-start-btn' },
-    neg: { seconds: 1200, original: 1200, running: false, interval: null, display: 'neg-display', btn: 'neg-start-btn' }
+    neg:  { seconds: 1200, original: 1200, running: false, interval: null, display: 'neg-display', btn: 'neg-start-btn' },
+    mini: { seconds: 480, original: 480, running: false, interval: null, display: 'mini-display', btn: 'mini-start-btn' }
   };
 
   function fmt(s) {

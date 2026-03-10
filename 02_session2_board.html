@@ -157,6 +157,30 @@
   .ai-insight h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--purple); margin-bottom: 10px; }
   .ai-insight p { font-size: 14px; line-height: 1.7; color: var(--text); }
   .ai-insight strong { color: var(--purple); }
+
+  /* MINI DEAL */
+  .mini-screen { flex-direction: column; }
+  .mini-header { padding: 20px 48px 14px; flex-shrink: 0; border-bottom: 1px solid var(--border); }
+  .mini-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .mini-title { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: 2px; line-height: 1; }
+  .mini-title .hl { color: var(--blue); }
+  .mini-sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .mini-body { display: grid; grid-template-columns: 1fr 60px 1fr; flex: 1; overflow: hidden; padding: 20px 48px; align-items: start; }
+  .mini-card { background: var(--surface); border: 1px solid var(--border); padding: 22px; }
+  .mini-card-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+  .mini-card-name { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 1px; margin-bottom: 16px; }
+  .mini-card ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .mini-card li { font-size: 13px; line-height: 1.5; padding-left: 20px; position: relative; }
+  .mini-card li::before { content: '→'; position: absolute; left: 0; color: var(--muted); font-size: 12px; }
+  .mini-vs-col { display: flex; align-items: center; justify-content: center; }
+  .mini-vs-text { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--border); }
+  .mini-footer { padding: 16px 48px; display: flex; align-items: center; gap: 32px; flex-shrink: 0; border-top: 1px solid var(--border); background: var(--surface); }
+  .mini-timer-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+  .mini-timer-display { font-family: 'Bebas Neue', sans-serif; font-size: 56px; line-height: 1; color: var(--green); transition: color 0.3s; }
+  .mini-timer-display.urgent { color: var(--accent); animation: pulse 0.5s infinite; }
+  .mini-timer-controls { display: flex; gap: 12px; }
+  .mini-timer-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; padding: 10px 24px; border: 2px solid; cursor: pointer; background: transparent; transition: all 0.2s; }
+  .mini-goal { font-size: 13px; color: var(--muted); line-height: 1.6; max-width: 300px; margin-left: auto; font-style: italic; }
 </style>
 </head>
 <body>
@@ -169,6 +193,7 @@
   <div class="topbar-right">
     <button class="nav-btn active" onclick="show('intro')">Intro</button>
     <button class="nav-btn" onclick="show('theory')">Theory</button>
+    <button class="nav-btn" onclick="show('mini')">Mini Deal</button>
     <button class="nav-btn" onclick="show('setup')">Setup</button>
     <button class="nav-btn" onclick="show('timer-prep')">AI Prep</button>
     <button class="nav-btn" onclick="show('timer-neg')">Negotiate</button>
@@ -219,6 +244,51 @@
         <div class="theory-row-desc">Establish trust and connection — people give more to those they like and trust</div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- MINI DEAL -->
+<div class="screen mini-screen" id="screen-mini">
+  <div class="mini-header">
+    <div class="mini-tag">Warm-Up · No AI · No Role Cards · Read your side only</div>
+    <div class="mini-title">MINI <span class="hl">DEAL</span></div>
+    <div class="mini-sub">Each pair: left side is Marketing, right side is Tech. Read your card. Don't look at the other one. Find a solution. 8 minutes.</div>
+  </div>
+  <div class="mini-body">
+    <div class="mini-card">
+      <div class="mini-card-label" style="color:var(--orange)">← Left side of the room</div>
+      <div class="mini-card-name" style="color:var(--orange)">Marketing Manager</div>
+      <ul>
+        <li>Your campaign launches in <strong>6 weeks</strong>. You need a landing page.</li>
+        <li>You're asking the tech team for <strong>3 weeks of developer time</strong>.</li>
+        <li>You expect them to say no — they always say they're too busy.</li>
+        <li>What you actually need: a page with a sign-up form, a hero image, and 3 sections. A good template would do.</li>
+        <li>Be flexible on the solution — what matters is having the page live in time.</li>
+      </ul>
+    </div>
+    <div class="mini-vs-col"><div class="mini-vs-text">VS</div></div>
+    <div class="mini-card">
+      <div class="mini-card-label" style="color:var(--teal); text-align:right">Right side of the room →</div>
+      <div class="mini-card-name" style="color:var(--teal)">Tech Lead</div>
+      <ul>
+        <li>Marketing is asking for <strong>3 weeks of dev time</strong>. Your team is fully booked for 4 weeks.</li>
+        <li>You want to help — but 3 weeks of custom dev is simply impossible right now.</li>
+        <li><strong>What you know that they don't:</strong> there's a no-code tool (Webflow) that could build a solid landing page in 2 days, no developer needed. You've done it before.</li>
+        <li>Don't say no immediately. First ask: <em>"What exactly does the page need to do?"</em></li>
+        <li>Their answer might change everything.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="mini-footer">
+    <div>
+      <div class="mini-timer-label">Negotiation Time</div>
+      <div class="mini-timer-display" id="mini-display">08:00</div>
+    </div>
+    <div class="mini-timer-controls">
+      <button class="mini-timer-btn" id="mini-start-btn" onclick="toggleTimer('mini')" style="border-color:var(--green);color:var(--green)">START</button>
+      <button class="mini-timer-btn" onclick="resetTimer('mini', 480)" style="border-color:var(--muted);color:var(--muted)">RESET</button>
+    </div>
+    <div class="mini-goal">Find a solution that works for both sides. The answer might not be what either of you expected.</div>
   </div>
 </div>
 
@@ -477,7 +547,8 @@
 
   const timers = {
     prep: { seconds: 420, running: false, interval: null },
-    neg: { seconds: 1200, running: false, interval: null }
+    neg:  { seconds: 1200, running: false, interval: null },
+    mini: { seconds: 480, running: false, interval: null }
   };
   function fmt(s) { return Math.floor(s/60).toString().padStart(2,'0') + ':' + (s%60).toString().padStart(2,'0'); }
   function toggleTimer(id) {

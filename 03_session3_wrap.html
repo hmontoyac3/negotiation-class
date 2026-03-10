@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SESSION 3 — The Framework | Negotiation</title>
+<title>SESSION 3 — Negotiate vs Me | Negotiation</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -25,53 +25,111 @@
   .screen { display: none; flex: 1; overflow: hidden; }
   .screen.active { display: flex; flex-direction: column; }
 
-  /* RECAP */
-  .recap-screen { justify-content: center; align-items: center; padding: 40px; }
-  .recap-inner { max-width: 900px; width: 100%; }
-  .recap-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; }
-  .recap-title { font-family: 'Bebas Neue', sans-serif; font-size: 64px; letter-spacing: 2px; margin-bottom: 32px; }
-  .recap-title span { color: var(--green); }
-  .recap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .recap-card { background: var(--surface); border: 1px solid var(--border); padding: 28px; }
-  .recap-card.s1 { border-top: 4px solid var(--gold); }
-  .recap-card.s2 { border-top: 4px solid var(--blue); }
-  .recap-session { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; }
-  .recap-session.s1 { color: var(--gold); }
-  .recap-session.s2 { color: var(--blue); }
-  .recap-card h3 { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 1px; margin-bottom: 12px; }
-  .recap-card p { font-size: 15px; color: var(--muted); line-height: 1.6; }
-  .recap-card strong { color: var(--text); }
-  .recap-insight { margin-top: 24px; background: rgba(46,213,115,0.07); border: 1px solid rgba(46,213,115,0.25); padding: 20px 24px; font-size: 15px; line-height: 1.7; color: var(--text); }
-  .recap-insight strong { color: var(--green); }
+  /* ── EQUIPPED ── */
+  .equipped-screen { justify-content: center; align-items: center; position: relative; overflow: hidden; }
+  .equipped-bg { position: absolute; font-family: 'Bebas Neue', sans-serif; font-size: 260px; color: rgba(255,255,255,0.018); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; white-space: nowrap; letter-spacing: -8px; }
+  .equipped-inner { max-width: 900px; width: 100%; padding: 40px; position: relative; z-index: 1; }
+  .equipped-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--green); text-transform: uppercase; margin-bottom: 20px; }
+  .equipped-title { font-family: 'Bebas Neue', sans-serif; font-size: 96px; line-height: 0.85; letter-spacing: 2px; margin-bottom: 32px; }
+  .equipped-title span { color: var(--green); }
+  .equipped-modules { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+  .equipped-mod { background: var(--surface); border: 1px solid var(--border); padding: 20px 24px; }
+  .equipped-mod-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; }
+  .equipped-mod-label.teams { color: var(--purple); }
+  .equipped-mod-label.comm { color: var(--gold); }
+  .equipped-mod-label.neg { color: var(--green); }
+  .equipped-mod h3 { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; margin-bottom: 8px; }
+  .equipped-mod p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .equipped-call { background: rgba(46,213,115,0.07); border: 1px solid rgba(46,213,115,0.3); padding: 20px 28px; font-size: 17px; line-height: 1.7; color: var(--text); }
+  .equipped-call strong { color: var(--green); }
 
-  /* QUESTIONS */
-  .questions-screen { justify-content: center; align-items: center; padding: 40px; }
-  .questions-inner { max-width: 860px; width: 100%; }
-  .q-title { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 2px; margin-bottom: 8px; }
-  .q-title span { color: var(--gold); }
-  .q-sub { font-size: 15px; color: var(--muted); margin-bottom: 36px; line-height: 1.5; }
-  .q-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 28px; }
-  .q-item { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--gold); padding: 20px 24px; cursor: pointer; transition: all 0.3s; }
-  .q-item:hover { background: rgba(255,211,42,0.04); }
-  .q-item.revealed { border-left-color: var(--green); }
-  .q-num { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 3px; color: var(--gold); margin-bottom: 8px; }
-  .q-item.revealed .q-num { color: var(--green); }
-  .q-text { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-  .q-why { font-size: 14px; color: var(--muted); line-height: 1.5; max-height: 0; overflow: hidden; transition: max-height 0.4s; }
-  .q-item.revealed .q-why { max-height: 120px; }
-  .q-hint { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; }
+  /* ── SETUP ── */
+  .setup-screen { justify-content: center; align-items: center; padding: 40px; }
+  .setup-inner { max-width: 860px; width: 100%; }
+  .setup-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  .setup-title { font-family: 'Bebas Neue', sans-serif; font-size: 72px; letter-spacing: 2px; line-height: 0.9; margin-bottom: 24px; }
+  .setup-title span { color: var(--accent); }
+  .stakes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+  .stake-card { background: var(--surface); border: 1px solid var(--border); padding: 24px; }
+  .stake-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; }
+  .stake-label.you { color: var(--accent); }
+  .stake-label.me { color: var(--blue); }
+  .stake-card h3 { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 1px; margin-bottom: 8px; }
+  .stake-card p { font-size: 14px; color: var(--muted); line-height: 1.5; }
+  .setup-rule { background: rgba(255,71,87,0.06); border: 1px solid rgba(255,71,87,0.25); padding: 16px 20px; font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 20px; }
+  .setup-rule strong { color: var(--accent); }
+  .setup-instructions { display: flex; flex-direction: column; gap: 10px; }
+  .setup-step { display: flex; gap: 16px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); padding: 14px 18px; }
+  .setup-step-num { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--green); min-width: 24px; line-height: 1; }
+  .setup-step-text { font-size: 14px; line-height: 1.5; color: var(--text); }
+  .setup-step-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+  .setup-step-text span { color: var(--muted); font-size: 13px; }
 
-  /* DONE */
+  /* ── TIMER ── */
+  .timer-screen { justify-content: center; align-items: center; flex-direction: column; gap: 24px; }
+  .timer-label { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); }
+  .timer-display { font-family: 'Bebas Neue', sans-serif; font-size: 180px; line-height: 1; color: var(--green); transition: color 0.3s; }
+  .timer-display.urgent { color: var(--accent); animation: pulse 0.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .timer-sub { font-size: 16px; color: var(--muted); text-align: center; max-width: 600px; line-height: 1.6; }
+  .timer-controls { display: flex; gap: 16px; }
+  .timer-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 2px; padding: 14px 40px; border: 2px solid; cursor: pointer; transition: all 0.2s; background: transparent; }
+  .timer-btn.start { border-color: var(--green); color: var(--green); }
+  .timer-btn.start:hover { background: var(--green); color: var(--bg); }
+  .timer-btn.reset { border-color: var(--muted); color: var(--muted); }
+  .timer-btn.reset:hover { border-color: var(--text); color: var(--text); }
+  .prep-tasks { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .prep-task { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--green); padding: 10px 16px; font-size: 13px; line-height: 1.5; }
+  .prep-task strong { color: var(--green); }
+
+  /* ── LIVE ── */
+  .live-screen { justify-content: center; align-items: center; position: relative; overflow: hidden; }
+  .live-bg { position: absolute; font-family: 'Bebas Neue', sans-serif; font-size: 320px; color: rgba(255,71,87,0.03); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+  .live-inner { max-width: 900px; width: 100%; padding: 40px; position: relative; z-index: 1; }
+  .live-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--accent); text-transform: uppercase; text-align: center; margin-bottom: 16px; }
+  .live-vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin-bottom: 32px; }
+  .live-side { background: var(--surface); border: 1px solid var(--border); padding: 28px 24px; text-align: center; }
+  .live-side.students { border-top: 4px solid var(--gold); }
+  .live-side.prof { border-top: 4px solid var(--blue); }
+  .live-side-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; }
+  .live-side-label.students { color: var(--gold); }
+  .live-side-label.prof { color: var(--blue); }
+  .live-side h2 { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 1px; line-height: 1.1; }
+  .live-side p { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+  .live-vs-center { font-family: 'Bebas Neue', sans-serif; font-size: 64px; color: var(--accent); text-align: center; }
+  .live-hint { background: rgba(61,132,255,0.06); border: 1px solid rgba(61,132,255,0.2); padding: 14px 20px; font-size: 13px; color: var(--blue); line-height: 1.6; text-align: center; }
+  .live-hint strong { color: var(--blue); }
+
+  /* ── REVEAL ── */
+  .reveal-screen { justify-content: center; align-items: center; padding: 40px; overflow-y: auto; }
+  .reveal-inner { max-width: 860px; width: 100%; }
+  .reveal-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+  .reveal-title { font-family: 'Bebas Neue', sans-serif; font-size: 72px; letter-spacing: 2px; line-height: 0.9; margin-bottom: 28px; }
+  .reveal-title span { color: var(--green); }
+  .reveal-interest { background: rgba(46,213,115,0.07); border: 2px solid var(--green); padding: 28px 32px; margin-bottom: 24px; }
+  .reveal-interest-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+  .reveal-interest p { font-size: 16px; line-height: 1.8; color: var(--text); }
+  .reveal-interest strong { color: var(--green); }
+  .reveal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .reveal-card { background: var(--surface); border: 1px solid var(--border); padding: 20px; }
+  .reveal-card-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .reveal-card h4 { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; margin-bottom: 8px; }
+  .reveal-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .reveal-card strong { color: var(--text); }
+  .reveal-close { background: rgba(255,211,42,0.06); border: 1px solid rgba(255,211,42,0.25); padding: 20px 24px; font-size: 15px; line-height: 1.7; color: var(--text); }
+  .reveal-close strong { color: var(--gold); }
+
+  /* ── DONE ── */
   .done-screen { justify-content: center; align-items: center; position: relative; overflow: hidden; }
   .done-bg { position: absolute; font-family: 'Bebas Neue', sans-serif; font-size: 300px; color: rgba(255,255,255,0.015); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; letter-spacing: -10px; }
   .done-content { text-align: center; position: relative; z-index: 1; max-width: 700px; }
   .done-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 4px; color: var(--green); text-transform: uppercase; margin-bottom: 20px; }
   .done-content h1 { font-family: 'Bebas Neue', sans-serif; font-size: 120px; line-height: 0.85; }
   .done-content h1 span { color: var(--green); }
-  .done-content p { font-size: 20px; color: var(--muted); margin-top: 28px; font-weight: 300; line-height: 1.6; }
-  .done-reminder { margin-top: 40px; display: flex; flex-direction: column; gap: 12px; }
-  .done-reminder-item { font-size: 14px; color: var(--muted); padding: 10px 20px; border: 1px solid var(--border); letter-spacing: 1px; }
-  .done-reminder-item strong { color: var(--green); }
+  .done-content p { font-size: 18px; color: var(--muted); margin-top: 28px; font-weight: 300; line-height: 1.6; }
+  .done-reminders { margin-top: 36px; display: flex; flex-direction: column; gap: 10px; }
+  .done-reminder { font-size: 14px; color: var(--muted); padding: 10px 20px; border: 1px solid var(--border); letter-spacing: 1px; text-align: left; }
+  .done-reminder strong { color: var(--green); }
 </style>
 </head>
 <body>
@@ -79,65 +137,166 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="session-badge">SESSION 3</div>
-    <div class="session-title">THE FRAMEWORK — WHAT YOU NOW KNOW</div>
+    <div class="session-title">NEGOTIATE VS ME</div>
   </div>
   <div class="topbar-right">
-    <button class="nav-btn active" onclick="show('recap')">What We Did</button>
-    <button class="nav-btn" onclick="show('questions')">3 Questions</button>
+    <button class="nav-btn active" onclick="show('equipped')">Equipped</button>
+    <button class="nav-btn" onclick="show('setup')">Setup</button>
+    <button class="nav-btn" onclick="show('timer-prep')">Prep</button>
+    <button class="nav-btn" onclick="show('live')">Live</button>
+    <button class="nav-btn" onclick="show('reveal')">Reveal</button>
     <button class="nav-btn" onclick="show('done')">Done</button>
   </div>
 </div>
 
-<!-- RECAP -->
-<div class="screen recap-screen active" id="screen-recap">
-  <div class="recap-inner">
-    <div class="recap-tag">Negotiation · Session 3 · The Synthesis</div>
-    <div class="recap-title">WHAT YOU DID <span>TODAY</span></div>
-    <div class="recap-grid">
-      <div class="recap-card s1">
-        <div class="recap-session s1">Session 1 — The Offer</div>
-        <h3>Distributive</h3>
-        <p>You negotiated a salary. One of you was trying to get more. The other was trying to spend less. <strong>There was a fixed amount of value</strong> — the question was how it got divided.<br><br>What you learned: <strong>BATNA gives you power. Anchoring shapes the outcome. Your reservation price is sacred.</strong></p>
+<!-- EQUIPPED -->
+<div class="screen equipped-screen active" id="screen-equipped">
+  <div class="equipped-bg">READY</div>
+  <div class="equipped-inner">
+    <div class="equipped-tag">Negotiation · Session 3 · The Final Round</div>
+    <div class="equipped-title">YOU ARE<br><span>EQUIPPED.</span></div>
+    <div class="equipped-modules">
+      <div class="equipped-mod">
+        <div class="equipped-mod-label teams">Teams</div>
+        <h3>How Groups Work</h3>
+        <p>You know how a team clicks — and how it falls apart. You've seen roles, dynamics, and what happens when trust breaks down.</p>
       </div>
-      <div class="recap-card s2">
-        <div class="recap-session s2">Session 2 — The Rights</div>
-        <h3>Integrative</h3>
-        <p>You negotiated over a rare citrus harvest. Most of you competed — but each side only needed a different part of the orange. <strong>The conflict was not real.</strong><br><br>What you learned: <strong>Positions divide. Interests connect. Ask "why" before you react to "what." The best deals create value — they don't just claim it.</strong></p>
+      <div class="equipped-mod">
+        <div class="equipped-mod-label comm">Communication</div>
+        <h3>How Messages Travel</h3>
+        <p>You've seen how a message distorts between sender and receiver. You know structure, body language, and what makes people believe you.</p>
+      </div>
+      <div class="equipped-mod">
+        <div class="equipped-mod-label neg">Negotiation</div>
+        <h3>How Deals Get Made</h3>
+        <p>BATNA. ZOPA. Anchoring. Interests vs positions. Fisher & Ury. You have the full toolkit — and you've used it today under real pressure.</p>
       </div>
     </div>
-    <div class="recap-insight">
-      The skill is knowing which situation you're in. Most real negotiations are <strong>both at once</strong> — some issues are distributive (who gets how much), some are integrative (what each side actually needs). The negotiator who can read that difference, and switch between the two modes, wins more and burns fewer relationships.
+    <div class="equipped-call">
+      Now use all three at once.<br>
+      <strong>Work as a team. Communicate your case. Negotiate against me.</strong><br>
+      I have 40 minutes of theory slides ready to go. You want to leave.<br>
+      Make your case — and make it well.
     </div>
   </div>
 </div>
 
-<!-- 3 QUESTIONS -->
-<div class="screen questions-screen" id="screen-questions">
-  <div class="questions-inner">
-    <div class="q-title">3 QUESTIONS — <span>BEFORE EVERY NEGOTIATION</span></div>
-    <div class="q-sub">Not a framework to memorize. Three questions to ask yourself before you open your mouth in any negotiation — salary, budget, partnership, anything.</div>
-    <div class="q-list">
-      <div class="q-item" onclick="this.classList.toggle('revealed')">
-        <div class="q-num">QUESTION 1</div>
-        <div class="q-text">"What do I actually need — and what happens if I don't get it?"</div>
-        <div class="q-why">This is your BATNA and reservation price. Know them before you start. Without them, every pressure tactic works on you. With them, you negotiate from strength — even when you feel nervous.</div>
-        <div class="q-hint">↓ Click to expand</div>
+<!-- SETUP -->
+<div class="screen setup-screen" id="screen-setup">
+  <div class="setup-inner">
+    <div class="setup-tag">The Final Negotiation</div>
+    <div class="setup-title">THE <span>STAKES</span></div>
+    <div class="stakes-grid">
+      <div class="stake-card">
+        <div class="stake-label you">Your position</div>
+        <h3>We want to leave now.</h3>
+        <p>You've been here since 12:00. You're tired. You've done two exercises. You believe you've learned enough.</p>
       </div>
-      <div class="q-item" onclick="this.classList.toggle('revealed')">
-        <div class="q-num">QUESTION 2</div>
-        <div class="q-text">"What do they actually need — and why do they need it?"</div>
-        <div class="q-why">This is the integrative unlock. Their position is what they're asking for. Their interest is why they want it. The win-win almost always lives in the interests — not the positions. If you don't know their interest, you're negotiating blind.</div>
-        <div class="q-hint">↓ Click to expand</div>
-      </div>
-      <div class="q-item" onclick="this.classList.toggle('revealed')">
-        <div class="q-num">QUESTION 3</div>
-        <div class="q-text">"What can I give them that costs me little — but is worth a lot to them?"</div>
-        <div class="q-why">This is the value creation move. In The Offer: remote work costs HR nothing but was worth real money to the candidate. In The Rights: the rind costs FreshPress nothing. Look for asymmetry — your cheap is their precious.</div>
-        <div class="q-hint">↓ Click to expand</div>
+      <div class="stake-card">
+        <div class="stake-label me">My position</div>
+        <h3>We continue with theory.</h3>
+        <p>I have 40 minutes of slides prepared. There is still content to cover. I am not done yet.</p>
       </div>
     </div>
-    <div style="background:rgba(61,132,255,0.07);border:1px solid rgba(61,132,255,0.25);padding:16px 20px;font-size:14px;color:var(--blue);line-height:1.6;">
-      <strong>Where AI fits:</strong> Use it to answer all three questions before you sit down. Research the other party. Estimate their BATNA. Generate creative trades. Rehearse the conversation. Then put the phone away — because the live negotiation requires something AI doesn't have: presence, judgment, and the ability to read another human in real time.
+    <div class="setup-rule">
+      <strong>The rule:</strong> Apply everything you've learned today. If your class makes a compelling case, I end the session now. If you argue positions without finding my real interest — we open the slides.
+    </div>
+    <div class="setup-instructions">
+      <div class="setup-step">
+        <div class="setup-step-num">1</div>
+        <div class="setup-step-text"><strong>Teams prepare (10 min)</strong><span>Before anyone speaks, every team writes down: what does the professor actually need? What can you offer?</span></div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-step-num">2</div>
+        <div class="setup-step-text"><strong>Teams pitch (15 min)</strong><span>One team at a time. I play hardball. You negotiate.</span></div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-step-num">3</div>
+        <div class="setup-step-text"><strong>Decision + reveal</strong><span>I announce the outcome — and reveal what I actually needed.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TIMER: PREP -->
+<div class="screen timer-screen" id="screen-timer-prep">
+  <div class="timer-label">TEAM PREPARATION TIME</div>
+  <div class="timer-display" id="prep-display">10:00</div>
+  <div class="timer-sub">Every team must write answers to these three questions before anyone speaks:</div>
+  <div class="prep-tasks">
+    <div class="prep-task"><strong>Question 1:</strong> What does the professor actually need from this session? What is her real interest — not her stated position?</div>
+    <div class="prep-task"><strong>Question 2:</strong> What can your team offer that gives her that — at low cost to you?</div>
+    <div class="prep-task"><strong>Question 3:</strong> What is your BATNA? What is hers?</div>
+  </div>
+  <div class="timer-controls" style="margin-top:20px;">
+    <button class="timer-btn start" id="prep-start-btn" onclick="toggleTimer()">START</button>
+    <button class="timer-btn reset" onclick="resetTimer()">RESET</button>
+  </div>
+</div>
+
+<!-- LIVE -->
+<div class="screen live-screen" id="screen-live">
+  <div class="live-bg">VS</div>
+  <div class="live-inner">
+    <div class="live-tag">Negotiation in progress — class vs professor</div>
+    <div class="live-vs">
+      <div class="live-side students">
+        <div class="live-side-label students">Your position</div>
+        <h2>WE WANT<br>TO LEAVE.</h2>
+        <p>Use Teams. Use Communication.<br>Use everything you learned today.</p>
+      </div>
+      <div class="live-vs-center">VS</div>
+      <div class="live-side prof">
+        <div class="live-side-label prof">My position</div>
+        <h2>WE CONTINUE<br>WITH THEORY.</h2>
+        <p>Make your case.<br>I'm not convinced yet.</p>
+      </div>
+    </div>
+    <div class="live-hint">
+      <strong>Remember the magic question:</strong> "What do you actually need from this session?" — ask it before you argue your position.
+    </div>
+  </div>
+</div>
+
+<!-- REVEAL -->
+<div class="screen reveal-screen" id="screen-reveal">
+  <div class="reveal-inner">
+    <div class="reveal-tag">The reveal</div>
+    <div class="reveal-title">WHAT I<br><span>ACTUALLY NEEDED.</span></div>
+    <div class="reveal-interest">
+      <div class="reveal-interest-label">My real interest</div>
+      <p>Not more slides. Not more time. I needed <strong>proof that something landed</strong>.<br><br>
+      Evidence that this day wasn't wasted. One concrete thing you'll do differently — written, said out loud, or committed to. If you could give me that, I was satisfied. The session was done.<br><br>
+      <strong>Did anyone ask me what I actually needed?</strong> That was the magic question. The same one you needed to ask PharmaOne about the oranges.</p>
+    </div>
+    <div class="reveal-grid">
+      <div class="reveal-card">
+        <div class="reveal-card-label">What worked</div>
+        <h4>Finding the interest</h4>
+        <p>Any team that asked <strong>"what do you need from today to feel it was worth it?"</strong> found the unlock immediately. That's principle 2: focus on interests, not positions.</p>
+      </div>
+      <div class="reveal-card">
+        <div class="reveal-card-label">What didn't work</div>
+        <h4>Arguing position</h4>
+        <p>Teams that said <strong>"we're tired," "we've learned enough," "let us leave"</strong> were arguing their position — not addressing mine. I had no reason to move.</p>
+      </div>
+      <div class="reveal-card">
+        <div class="reveal-card-label">The win-win</div>
+        <h4>The deal that was always there</h4>
+        <p>You commit to something that proves learning. I get my evidence. You get your exit. <strong>Both get 100% of what you actually needed.</strong> Same as the oranges.</p>
+      </div>
+      <div class="reveal-card">
+        <div class="reveal-card-label">The meta-lesson</div>
+        <h4>It's always the same question</h4>
+        <p>Salary. Oranges. A classroom exit. In every negotiation: <strong>"What do you actually need — and why?"</strong> That question is worth more than any tactic.</p>
+      </div>
+    </div>
+    <div class="reveal-close">
+      <strong>Three modules. One day. One insight that runs through all of it:</strong><br>
+      Teams work when people understand each other's actual needs — not just their stated roles.<br>
+      Communication lands when you know what the receiver actually needs to hear.<br>
+      Negotiation succeeds when you ask why before you react to what.<br><br>
+      <strong>That's the whole thing.</strong>
     </div>
   </div>
 </div>
@@ -147,12 +306,12 @@
   <div class="done-bg">DONE</div>
   <div class="done-content">
     <div class="done-tag">Negotiation Module — Complete</div>
-    <h1>YOU'RE<br><span>DONE.</span></h1>
-    <p>You negotiated under pressure. You made mistakes. You discovered something about how you operate when stakes are real.<br><br>That's the point.</p>
-    <div class="done-reminder">
-      <div class="done-reminder-item">Next time you negotiate a salary: <strong>anchor first, anchor boldly.</strong></div>
-      <div class="done-reminder-item">Next time you're in a conflict: <strong>ask why before you react to what.</strong></div>
-      <div class="done-reminder-item">Before every important negotiation: <strong>answer the 3 questions.</strong></div>
+    <h1>SEE YOU<br><span>OUT THERE.</span></h1>
+    <p>You negotiated under pressure. Twice with a stranger. Once with me.<br>Each time, the same question decided the outcome.</p>
+    <div class="done-reminders">
+      <div class="done-reminder">Before your next salary negotiation: <strong>prepare the checklist. Know your BATNA. Anchor first.</strong></div>
+      <div class="done-reminder">Before your next conflict: <strong>ask why before you react to what.</strong></div>
+      <div class="done-reminder">Before every negotiation: <strong>"What do they actually need — and why?"</strong></div>
     </div>
   </div>
 </div>
@@ -163,6 +322,46 @@
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('screen-' + name).classList.add('active');
     event.target.classList.add('active');
+  }
+
+  let timerSeconds = 600;
+  let timerRunning = false;
+  let timerInterval = null;
+
+  function fmt(s) {
+    return Math.floor(s/60).toString().padStart(2,'0') + ':' + (s%60).toString().padStart(2,'0');
+  }
+  function toggleTimer() {
+    if (timerRunning) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      document.getElementById('prep-start-btn').textContent = 'RESUME';
+    } else {
+      timerRunning = true;
+      document.getElementById('prep-start-btn').textContent = 'PAUSE';
+      timerInterval = setInterval(() => {
+        timerSeconds--;
+        const el = document.getElementById('prep-display');
+        el.textContent = fmt(timerSeconds);
+        if (timerSeconds <= 60) el.classList.add('urgent');
+        else el.classList.remove('urgent');
+        if (timerSeconds <= 0) {
+          clearInterval(timerInterval);
+          timerRunning = false;
+          document.getElementById('prep-start-btn').textContent = 'START';
+          el.textContent = 'GO.';
+        }
+      }, 1000);
+    }
+  }
+  function resetTimer() {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    timerSeconds = 600;
+    document.getElementById('prep-start-btn').textContent = 'START';
+    const el = document.getElementById('prep-display');
+    el.textContent = '10:00';
+    el.classList.remove('urgent');
   }
 </script>
 </body>

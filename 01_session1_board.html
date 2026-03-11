@@ -170,6 +170,17 @@
   .mini-timer-controls { display: flex; gap: 12px; }
   .mini-timer-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; padding: 10px 24px; border: 2px solid; cursor: pointer; background: transparent; transition: all 0.2s; }
   .mini-goal { font-size: 13px; color: var(--muted); line-height: 1.6; max-width: 300px; margin-left: auto; font-style: italic; }
+
+  /* ANNOUNCEMENT */
+  .announce-screen { justify-content: center; align-items: center; }
+  .announce-card { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--gold); padding: 48px 56px; max-width: 600px; width: 100%; }
+  .announce-eyebrow { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; }
+  .announce-row { display: flex; align-items: baseline; gap: 20px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .announce-row:last-of-type { border-bottom: none; }
+  .announce-time { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--gold); min-width: 80px; line-height: 1; }
+  .announce-desc { font-size: 15px; color: var(--text); line-height: 1.5; }
+  .announce-desc em { color: var(--accent); font-style: normal; font-weight: 700; }
+  .announce-note { margin-top: 24px; font-size: 13px; color: var(--muted); line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -180,7 +191,8 @@
     <div class="session-title">THE OFFER — DISTRIBUTIVE NEGOTIATION</div>
   </div>
   <div class="topbar-right">
-    <button class="nav-btn active" onclick="show('intro')">Intro</button>
+    <button class="nav-btn active" onclick="show('announce')">Schedule</button>
+    <button class="nav-btn" onclick="show('intro')">Intro</button>
     <button class="nav-btn" onclick="show('stats');initStats()">Wake Up</button>
     <button class="nav-btn" onclick="show('theory')">Theory</button>
     <button class="nav-btn" onclick="show('mini')">Mini Deal</button>
@@ -192,8 +204,32 @@
   </div>
 </div>
 
+<!-- ANNOUNCEMENT -->
+<div class="screen announce-screen active" id="screen-announce">
+  <div class="announce-card">
+    <div class="announce-eyebrow">Today's Schedule</div>
+    <div class="announce-row">
+      <div class="announce-time">12:00</div>
+      <div class="announce-desc">Attendance and short introduction — approx. 20 minutes.</div>
+    </div>
+    <div class="announce-row">
+      <div class="announce-time">~12:20</div>
+      <div class="announce-desc">Lunch break.</div>
+    </div>
+    <div class="announce-row">
+      <div class="announce-time">14:15</div>
+      <div class="announce-desc">Session resumes. <em>Earlier than the official timetable.</em></div>
+    </div>
+    <div class="announce-row">
+      <div class="announce-time">16:00</div>
+      <div class="announce-desc">Final session.</div>
+    </div>
+    <div class="announce-note">Please make sure to be back by 14:15.</div>
+  </div>
+</div>
+
 <!-- INTRO -->
-<div class="screen intro-screen active" id="screen-intro">
+<div class="screen intro-screen" id="screen-intro">
   <div class="intro-bg">NEGOTIATE</div>
   <div class="intro-content">
     <div class="intro-tag">Negotiation · Session 1 · 2026</div>

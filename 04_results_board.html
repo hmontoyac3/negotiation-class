@@ -330,22 +330,23 @@
       return;
     }
     const minVal = 2000, maxVal = 3200, range = maxVal - minVal;
+    const MAX_PX = 140;
     let html = '';
     salaries.slice().sort((a,b) => a-b).forEach((v, i) => {
-      const pct = Math.max(5, Math.min(100, ((v - minVal) / range) * 100));
+      const px = Math.max(6, Math.round(((v - minVal) / range) * MAX_PX));
       let cls = 'bar';
       if (v >= 2700) cls += ' above-avg';
       else if (v < 2500) cls += ' below-min';
       html += `<div class="bar-wrap">
         <div class="bar-value">${(v/1000).toFixed(1)}k</div>
-        <div class="${cls}" style="height:${pct}%"></div>
+        <div class="${cls}" style="height:${px}px"></div>
         <div class="bar-label">#${i+1}</div>
       </div>`;
     });
     for (let i = 0; i < noDealCount; i++) {
       html += `<div class="bar-wrap">
         <div class="bar-value" style="color:var(--muted)">✕</div>
-        <div class="bar no-deal" style="height:20%"></div>
+        <div class="bar no-deal" style="height:24px"></div>
         <div class="bar-label">nd</div>
       </div>`;
     }

@@ -170,6 +170,12 @@
   .mini-timer-controls { display: flex; gap: 12px; }
   .mini-timer-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; padding: 10px 24px; border: 2px solid; cursor: pointer; background: transparent; transition: all 0.2s; }
   .mini-goal { font-size: 13px; color: var(--muted); line-height: 1.6; max-width: 300px; margin-left: auto; font-style: italic; }
+  .mini-card { position: relative; }
+  .mini-card-mask { position: absolute; inset: 0; background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; z-index: 2; }
+  .mini-card-mask.hidden { display: none; }
+  .mini-card-mask-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+  .mini-reveal-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; padding: 10px 28px; border: 2px solid var(--gold); color: var(--gold); background: transparent; cursor: pointer; transition: all 0.2s; }
+  .mini-reveal-btn:hover { background: var(--gold); color: var(--bg); }
 
   /* ANNOUNCEMENT */
   .announce-screen { justify-content: center; align-items: center; }
@@ -195,6 +201,7 @@
     <button class="nav-btn" onclick="show('intro')">Intro</button>
     <button class="nav-btn" onclick="show('stats');initStats()">Wake Up</button>
     <button class="nav-btn" onclick="show('theory')">Theory</button>
+    <button class="nav-btn" onclick="show('mini')">Mini Deal</button>
     <button class="nav-btn" onclick="show('setup')">Setup</button>
     <button class="nav-btn" onclick="show('timer-prep')">AI Prep</button>
     <button class="nav-btn" onclick="show('timer-neg')">Negotiate</button>
@@ -330,6 +337,10 @@
   </div>
   <div class="mini-body">
     <div class="mini-card">
+      <div class="mini-card-mask" id="mask-s1-left">
+        <div class="mini-card-mask-label">← Left side of the room</div>
+        <button class="mini-reveal-btn" onclick="toggleMask('mask-s1-left')">Reveal</button>
+      </div>
       <div class="mini-card-label" style="color:var(--gold)">← Left side of the room</div>
       <div class="mini-card-name" style="color:var(--gold)">The Employee</div>
       <ul>
@@ -342,6 +353,10 @@
     </div>
     <div class="mini-vs-col"><div class="mini-vs-text">VS</div></div>
     <div class="mini-card">
+      <div class="mini-card-mask" id="mask-s1-right">
+        <div class="mini-card-mask-label">Right side of the room →</div>
+        <button class="mini-reveal-btn" onclick="toggleMask('mask-s1-right')">Reveal</button>
+      </div>
       <div class="mini-card-label" style="color:var(--purple); text-align:right">Right side of the room →</div>
       <div class="mini-card-name" style="color:var(--purple)">The Manager</div>
       <ul>
@@ -540,6 +555,9 @@
   document.addEventListener('keydown', e => {
     if (e.altKey && e.key === 'm') show('mini');
   });
+  function toggleMask(id) {
+    document.getElementById(id).classList.toggle('hidden');
+  }
 
   // Timer system — two independent timers
   const timers = {

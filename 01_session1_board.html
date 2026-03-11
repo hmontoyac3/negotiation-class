@@ -195,7 +195,6 @@
     <button class="nav-btn" onclick="show('intro')">Intro</button>
     <button class="nav-btn" onclick="show('stats');initStats()">Wake Up</button>
     <button class="nav-btn" onclick="show('theory')">Theory</button>
-    <button class="nav-btn" onclick="show('mini')">Mini Deal</button>
     <button class="nav-btn" onclick="show('setup')">Setup</button>
     <button class="nav-btn" onclick="show('timer-prep')">AI Prep</button>
     <button class="nav-btn" onclick="show('timer-neg')">Negotiate</button>
@@ -531,12 +530,16 @@
 </div>
 
 <script>
-  function show(name) {
+  function show(name, btn) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('screen-' + name).classList.add('active');
-    event.target.classList.add('active');
+    if (btn) btn.classList.add('active');
+    else if (event && event.target) event.target.classList.add('active');
   }
+  document.addEventListener('keydown', e => {
+    if (e.altKey && e.key === 'm') show('mini');
+  });
 
   // Timer system — two independent timers
   const timers = {
